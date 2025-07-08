@@ -1,0 +1,29 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TadesApi.Db.Entities;
+
+namespace TadesApi.Db.Configuration.AppManagament
+{
+    public class SessionProgressConfiguration : IEntityTypeConfiguration<ClientSessionProgress>
+    {
+        public void Configure(EntityTypeBuilder<ClientSessionProgress> builder)
+        {
+            builder.ToTable(nameof(ClientSessionProgress));
+            builder.HasKey(x => x.Id);
+            builder.Property(s => s.GuidId).IsRequired();
+            builder.Property(s => s.Date).IsRequired();
+            builder.Property(s => s.Accuracy).IsRequired();
+            builder.Property(e => e.IsDeleted).HasDefaultValue(false);
+
+
+            builder.HasOne(s => s.ClientSession).WithMany(s => s.SessionProgresses).HasForeignKey(s => s.ClientSessionId);
+            builder.HasOne(s => s.ClientGoalObjective).WithMany(s => s.SessionProgresses).HasForeignKey(s => s.GoalObjectiveId);
+
+        }
+    }
+}

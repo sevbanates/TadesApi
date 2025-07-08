@@ -1,0 +1,22 @@
+﻿using TadesApi.CoreHelper;
+using TadesApi.Db.Entities;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TadesApi.BusinessService.Cache
+{
+
+    public interface IRedisFuncService
+    {
+      
+        public SysStringResource GetLocalizationMessage(string message);
+        public void AddLocalizationMessage(SysStringResource message,string msgKey);
+        public bool AddLAllocalizationMessage(List<SysStringResource> messages);
+
+
+
+    }
+}

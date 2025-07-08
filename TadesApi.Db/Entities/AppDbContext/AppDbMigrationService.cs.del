@@ -1,0 +1,53 @@
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using TadesApi.Db.SeedData;
+
+namespace TadesApi.Db.Entities.AppDbContext
+{
+    public class AppDbMigrationService<TDbContext> : IMigrationService where TDbContext : DbContext
+    {
+        readonly ILogger<AppDbMigrationService<TDbContext>> _logger;
+        readonly IServiceScopeFactory _scopeFactory;
+        TDbContext _context;
+
+        public AppDbMigrationService(ILogger<AppDbMigrationService<TDbContext>> logger, IServiceScopeFactory scopeFactory)
+        {
+            _logger = logger;
+            _scopeFactory = scopeFactory;
+        }
+        public async Task StartAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Applying migrations for {DbContext}", TypeCache<TDbContext>.ShortName);
+            var scope = _scopeFactory.CreateScope();
+            try
+            {
+                _context = scope.ServiceProvider.GetRequiredService<TDbContext>();
+                
+                await _context.Database.MigrateAsync(cancellationToken);
+
+                var dataSeeders = scope.ServiceProvider.GetServices<IDataSeeder>();
+                foreach (var dataSeeder in dataSeeders)
+                {
+                    var dataSeederType = dataSeeder.GetType();
+                    if (dataSeederType.GenericTypeArguments.Length == 1 && dataSeederType.GenericTypeArguments.FirstOrDefault().Name == "AppDbContext")
+                    {
+                        await dataSeeder.SeedAsync();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+            }
+            finally
+            {
+                if (scope is IAsyncDisposable asyncDisposable)
+                    await asyncDisposable.DisposeAsync();
+                else
+                    scope.Dispose();
+            }
+
+        }
+    }
+}

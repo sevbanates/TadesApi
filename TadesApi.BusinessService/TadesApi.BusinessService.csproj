@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>12</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="LibraryServices - Copy\**" />
+      <EmbeddedResource Remove="LibraryServices - Copy\**" />
+      <None Remove="LibraryServices - Copy\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="PuppeteerSharp" Version="19.0.1" />
+   
+
+
+		<ProjectReference Include="..\TadesApi.Db\TadesApi.Db.csproj" />
+        <ProjectReference Include="..\TadesApi.Db\TadesApi.Db.csproj" />
+        <PackageReference Include="AutoMapper" Version="13.0.1" />
+        <PackageReference Include="SendWithBrevo" Version="1.0.0" />
+        <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+
+
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="AuthServices\Validators\" />
+      <Folder Include="InquiryServices\Validators\" />
+      <Folder Include="LibraryServices\Validators\" />
+      <Folder Include="MessageServices\Validators\" />
+    </ItemGroup>
+
+</Project>

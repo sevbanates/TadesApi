@@ -1,0 +1,28 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TadesApi.Core.Models.Global;
+using TadesApi.Core.Models.ViewModels.AuthManagement;
+
+namespace TadesApi.Models.ViewModels.WebSite
+{
+    public class WebSiteDto : BaseModel
+    {
+        public Guid? GuidId { get; set; }
+        public string WebUrl { get; set; }
+        public string Title { get; set; }
+        public long? UserId { get; set; }
+        public DateTime CreDate { get; set; }
+        public int CreUser { get; set; }
+        public DateTime? HostingStartDate { get; set; }
+        public DateTime? HostingEndDate { get; set; }
+    }    
+    
+    public class WebSiteWithUserDto : WebSiteDto
+    {
+        public UserBasicDto User { get; set; }
+    }
+}
+

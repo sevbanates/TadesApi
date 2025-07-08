@@ -1,0 +1,32 @@
+﻿using Microsoft.Extensions.Options;
+using StackExchange.Redis;
+using System;
+using System.Linq;
+
+namespace TadesApi.Core.Caching
+{
+
+    public class RedisServer
+    {
+        private ConnectionMultiplexer _connectionMultiplexer;
+        private IDatabase _database;
+        private int _currentDatabaseId = 7;
+        public readonly IOptions<AppConfigs> _configuration;
+        public RedisServer(IOptions<AppConfigs> configuration)
+        {
+            _configuration = configuration;
+            _connectionMultiplexer = ConnectionMultiplexer.Connect(_configuration.Value.RedisConnectionString);
+            _database = _connectionMultiplexer.GetDatabase(_currentDatabaseId);
+        }
+
+        public IDatabase Database => _database;
+
+        public void FlushDatabase()
+        {
+            //_connectionMultiplexer.GetServer(_configuration.RedisConnonctionString).FlushDatabase(_currentDatabaseId);
+        }
+
+
+    }
+
+}

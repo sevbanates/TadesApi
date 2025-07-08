@@ -1,0 +1,687 @@
+﻿using Microsoft.AspNetCore.SignalR;
+using TadesApi.BusinessService.ClientServices.Interfaces;
+using TadesApi.Models.CustomModels;
+
+namespace TadesApi.Portal.Hubs
+{
+    public class ChatHub : Hub
+    {
+        private readonly IConferenceService _conferenceService;
+
+        public ChatHub(IConferenceService conferenceService)
+        {
+            _conferenceService = conferenceService;
+        }
+
+        public async Task RegisterSfu()
+        {
+            Console.WriteLine("SFU connected.");
+            _conferenceService.SetParticipant(Context.ConnectionId, new Participant("SFU", Guid.Empty.ToString(), "SFU", ParticipantType.SFU, Context.ConnectionId));
+
+            await Clients.AllExcept(Context.ConnectionId).SendAsync("SfuReady");
+        }
+
+        public async Task RegisterUser(string userId, string name, ParticipantType participantType)
+        {
+            await Task.Run(() =>
+            {
+                if (_conferenceService.TryGetParticipant(Context.ConnectionId, out Participant participant))
+                {
+                    if (participant != null)
+                    {
+                        return;
+                    }
+                }
+
+                _conferenceService.SetParticipant(Context.ConnectionId, new Participant("Lobby", userId, name, participantType, Context.ConnectionId));
+            });
+        }
+
+        public bool CheckRoomExists(string roomId)
+        {
+            bool response = false;
+            var roomConsultant = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Value.ParticipantType == ParticipantType.Consultant).ToList();
+            response = roomConsultant.Any();
+            return response;
+        }
+
+        public async Task ChangeConnection(string roomId, string userId)
+        {
+            var connections = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Value.UserId == userId).ToList();
+            if (connections.Any())
+            {
+                foreach (var connection in connections)
+                {
+                    if (connection.Key != Context.ConnectionId)
+                    {
+                        if (_conferenceService.TryGetSfu(out Participant sfu) && sfu != null)
+                        {
+                            await Clients.Client(sfu.ConnectionId).SendAsync("Disconnect", connection.Value, CancellationToken.None);
+                            await Clients.Clients(connection.Key).SendAsync("LeaveRoom");
+                        }
+                    }
+                }
+                await Task.Delay(1000);
+            }
+        }
+
+
+        public async Task<bool> CreateRoom(string roomId)
+        {
+            bool response = false;
+            if (_conferenceService.TryGetSfu(out Participant sfu) && sfu != null)
+            {
+                if (!_conferenceService.TryGetParticipant(Context.ConnectionId, out Participant participant))
+                {
+                    return false;
+                }
+
+                //var roomConsultant = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Value.ParticipantType == ParticipantType.Consultant).ToList();
+                //if (roomConsultant.Any())
+                //{
+                //    foreach (var connection in roomConsultant)
+                //    {
+                //        if (connection.Key != Context.ConnectionId)
+                //        {
+                //            await Clients.Clients(connection.Key).SendAsync("LeaveRoom");
+                //        }
+                //    }
+                //    await Task.Delay(1000);
+                //}
+
+                if (participant != null)
+                {
+                    participant.RoomId = roomId;
+                    participant.IsAdmited = true;
+                    response = await Clients.Client(sfu.ConnectionId).InvokeAsync<bool>("CreateRoom", participant, CancellationToken.None);
+                    if (response)
+                    {
+                        _conferenceService.Rooms.TryAdd(roomId, new RoomInfo() { RoomCode = roomId, ClientsCanChat = true, ClientsMouseEnabled = false, SharedCursorEnabled = false });
+                        participant.RoomId = roomId;
+                        var roomClients = _conferenceService.Connections.Where(s => s.Key != Context.ConnectionId && s.Value.RoomId == roomId).Select(s => s.Key).ToList();
+                        await Clients.Clients(roomClients).SendAsync("RoomCreated");
+                    }
+                }
+
+                return response;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> JoinRoom(string roomId)
+        {
+            bool response = false;
+            if (_conferenceService.TryGetSfu(out Participant sfu) && sfu != null)
+            {
+                _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant participant);
+                if (participant != null)
+                {
+                    participant.RoomId = roomId;
+                    if (participant.ParticipantType == ParticipantType.Student && !participant.IsAdmited)
+                    {
+                        return false;
+                    }
+                    response = await Clients.Client(sfu.ConnectionId).InvokeAsync<bool>("JoinRoom", participant, CancellationToken.None);
+                    if (response)
+                    {
+                        var roomInfo = _conferenceService.Rooms.FirstOrDefault(s => s.Key == roomId);
+                        if (participant != null && participant.ParticipantType != ParticipantType.Consultant)
+                        {
+
+                            if (!string.IsNullOrEmpty(roomInfo.Key))
+                            {
+                                await Clients.Caller.SendAsync("setRoomClientPermission", new
+                                {
+                                    ClientsCanChat = roomInfo.Value.ClientsCanChat,
+                                    ClientsMouseEnabled = roomInfo.Value.ClientsMouseEnabled,
+                                    SharedCursorEnabled = roomInfo.Value.SharedCursorEnabled
+                                });
+
+                            }
+                            else
+                            {
+                                await Clients.Caller.SendAsync("setRoomClientPermission", new
+                                {
+                                    ClientsCanChat = true,
+                                    ClientsMouseEnabled = false,
+                                    SharedCursorEnabled = false
+                                }
+                                );
+                            }
+                        }
+                        if (participant != null && !string.IsNullOrEmpty(roomInfo.Value.CanvasData))
+                        {
+                            await Clients.Caller.SendAsync("canvasPushAction", roomInfo.Value.CanvasData);
+                        }
+
+                        var roomParticipants = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Key != Context.ConnectionId).ToList();
+                        foreach (var client in roomParticipants)
+                        {
+                            await Clients.Client(client.Key).SendAsync("newParticipant", participant);
+                        }
+                    }
+                }
+
+                return response;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public async Task<bool> LeaveRoom(string roomId)
+        {
+            bool response = false;
+
+            _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+            if (participant != null)
+            {
+                if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+                {
+                    await Clients.Client(sfu.ConnectionId).SendAsync("Disconnect", participant, CancellationToken.None);
+                }
+                var roomClients = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId).ToList();
+                foreach (var roomClient in roomClients)
+                {
+                    if (!string.IsNullOrEmpty(participant.Name))
+                    {
+                        await Clients.Client(roomClient.Key).SendAsync("Disconnect", participant, CancellationToken.None);
+                    }
+                }
+                _conferenceService.RemoveParticipant(Context.ConnectionId);
+
+                response = true;
+            }
+
+            return response;
+        }
+
+
+        public async Task<List<Participant>> GetRoomParticipants(string roomId)
+        {
+            return await Task.Run(() =>
+            {
+                var roomParticipants = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Key != Context.ConnectionId).ToList();
+
+                return roomParticipants.Select(s => s.Value).ToList();
+            });
+        }
+
+        public async Task SetClientsCanChat(string roomId, bool canChat)
+        {
+            _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+            if (participant != null && participant.ParticipantType == ParticipantType.Consultant)
+            {
+                var roomInfo = _conferenceService.Rooms.FirstOrDefault(s => s.Key == roomId);
+                if (!string.IsNullOrEmpty(roomInfo.Key))
+                {
+                    roomInfo.Value.ClientsCanChat = canChat;
+                }
+                else
+                {
+                    _conferenceService.Rooms.TryAdd(roomId, new RoomInfo() { RoomCode = roomId, ClientsCanChat = canChat });
+                }
+                var roomParticipants = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Key != Context.ConnectionId).ToList();
+                foreach (var client in roomParticipants)
+                {
+                    await Clients.Client(client.Key).SendAsync("setClientsCanChat", canChat);
+                }
+            }
+        }
+
+        public async Task SetClientsMouseState(string roomId, bool mouseState)
+        {
+            _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+            if (participant != null && participant.ParticipantType == ParticipantType.Consultant)
+            {
+                var roomInfo = _conferenceService.Rooms.FirstOrDefault(s => s.Key == roomId);
+                if (!string.IsNullOrEmpty(roomInfo.Key))
+                {
+                    roomInfo.Value.ClientsMouseEnabled = mouseState;
+                }
+                else
+                {
+                    _conferenceService.Rooms.TryAdd(roomId, new RoomInfo() { RoomCode = roomId, ClientsMouseEnabled = mouseState });
+                }
+                var roomParticipants = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Key != Context.ConnectionId).ToList();
+                foreach (var client in roomParticipants)
+                {
+                    await Clients.Client(client.Key).SendAsync("SetClientsMouseState", mouseState);
+                }
+            }
+        }
+
+        public async Task SetSharedCursorState(string roomId, bool shareState)
+        {
+            _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+            if (participant != null && participant.ParticipantType == ParticipantType.Consultant)
+            {
+                var roomInfo = _conferenceService.Rooms.FirstOrDefault(s => s.Key == roomId);
+                if (!string.IsNullOrEmpty(roomInfo.Key))
+                {
+                    roomInfo.Value.SharedCursorEnabled = shareState;
+                }
+                else
+                {
+                    _conferenceService.Rooms.TryAdd(roomId, new RoomInfo() { RoomCode = roomId, SharedCursorEnabled = shareState });
+                }
+                var roomParticipants = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Key != Context.ConnectionId).ToList();
+                foreach (var client in roomParticipants)
+                {
+                    await Clients.Client(client.Key).SendAsync("SetSharedCursorState", shareState);
+                }
+            }
+        }
+
+        public async Task SendMouseMovement(string roomId, MousePosition position)
+        {
+            _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+            var roomParticipants = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Key != Context.ConnectionId).ToList();
+            foreach (var client in roomParticipants)
+            {
+                await Clients.Client(client.Key).SendAsync("ReceiveMouseMovement", position);
+            }
+        }
+
+        public async Task SendChatMessage(ChatMessage chatMessage)
+        {
+            var roomParticipants = _conferenceService.Connections.Where(s => s.Value.RoomId == chatMessage.RoomId && s.Key != Context.ConnectionId).ToList();
+            foreach (var client in roomParticipants)
+            {
+                chatMessage.IsMine = false;
+                await Clients.Client(client.Key).SendAsync("newChatMessage", chatMessage);
+            }
+        }
+
+        public async Task ChangeSelectedContent(string roomId, string contentId, string payload)
+        {
+            var roomParticipants = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Key != Context.ConnectionId).ToList();
+            foreach (var client in roomParticipants)
+            {
+                await Clients.Client(client.Key).SendAsync("changeContent", contentId, payload);
+            }
+        }
+
+        public async Task CanvasPushAction(string roomId, string canvasData)
+        {
+            var roomInfo = _conferenceService.Rooms.FirstOrDefault(s => s.Key == roomId);
+            if (!string.IsNullOrEmpty(roomInfo.Key))
+            {
+                roomInfo.Value.CanvasData = canvasData;
+            }
+
+            var roomParticipants = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Key != Context.ConnectionId).ToList();
+            foreach (var client in roomParticipants)
+            {
+                await Clients.Client(client.Key).SendAsync("canvasPushAction", canvasData);
+            }
+        }
+
+        public async Task SendClearAllMessages(string roomId)
+        {
+            var roomParticipants = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Key != Context.ConnectionId).ToList();
+            foreach (var client in roomParticipants)
+            {
+                await Clients.Client(client.Key).SendAsync("clearAllMessages");
+            }
+        }
+
+        public async Task<bool> RequestRoomAccessPermission(string roomId, string userId, string name)
+        {
+            if (_conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant))
+            {
+                if (participant != null)
+                {
+                    _conferenceService.RemoveParticipant(Context.ConnectionId);
+                }
+            }
+
+            var newParticipant = new Participant(roomId, userId, name, ParticipantType.Student, Context.ConnectionId);
+            _conferenceService.SetParticipant(Context.ConnectionId, newParticipant);
+
+            var consultant = _conferenceService.Connections.FirstOrDefault(s => s.Value.RoomId == roomId && s.Value.ParticipantType == ParticipantType.Consultant);
+            if (!string.IsNullOrEmpty(consultant.Key))
+            {
+                Console.WriteLine(consultant.Key + " requestRoomAccessPermission for " + roomId);
+                await Clients.Client(consultant.Key).SendAsync("requestRoomAccessPermission", newParticipant);
+            }
+
+            return true;
+        }
+
+        public async Task ClientRoomAccessAdmit(string roomId, string userId, bool isAdmited)
+        {
+            var user = _conferenceService.Connections.FirstOrDefault(s => s.Value.RoomId == roomId && s.Value.UserId == userId);
+            if (!string.IsNullOrEmpty(user.Key))
+            {
+                user.Value.IsAdmited = isAdmited;
+                if (!isAdmited)
+                {
+                    user.Value.RoomId = "Lobby";
+                }
+                await Clients.Client(user.Key).SendAsync("ClientRoomAccessAdmit", user.Value);
+            }
+        }
+
+        public async Task<bool> ToggleClientMic(string userId, bool micState)
+        {
+            var user = _conferenceService.Connections.FirstOrDefault(s => s.Value.UserId == userId);
+            if (!string.IsNullOrEmpty(user.Key))
+            {
+                return await Clients.Client(user.Key).InvokeAsync<bool>("ToggleClientMic", micState, CancellationToken.None);
+            }
+            else
+            {
+                return await Task.FromResult<bool>(false);
+            }
+        }
+
+        public async Task ToggleClientLeftPanel(string roomId, bool panelState)
+        {
+            _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+            if (participant != null && participant.ParticipantType == ParticipantType.Consultant)
+            {
+                var roomInfo = _conferenceService.Rooms.FirstOrDefault(s => s.Key == roomId);
+
+                var roomParticipants = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Key != Context.ConnectionId).ToList();
+                foreach (var client in roomParticipants)
+                {
+                    await Clients.Client(client.Key).SendAsync("toggleClientLeftPanel", panelState);
+                }
+            }
+        }
+
+        public async Task UpdateYouTubeVideoState(string roomId, int playState, double seekTo)
+        {
+            _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+            if (participant != null && participant.ParticipantType == ParticipantType.Consultant)
+            {
+                var roomInfo = _conferenceService.Rooms.FirstOrDefault(s => s.Key == roomId);
+
+                var roomParticipants = _conferenceService.Connections.Where(s => s.Value.RoomId == roomId && s.Key != Context.ConnectionId).ToList();
+                foreach (var client in roomParticipants)
+                {
+                    await Clients.Client(client.Key).SendAsync("updateYouTubeVideoState", playState, seekTo);
+                }
+            }
+        }
+
+        public async Task<string> GetRouterRtpCapabilities(string roomId)
+        {
+            if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+            {
+                var routerRtpCapabilities = await Clients.Client(sfu.ConnectionId).InvokeAsync<string>("GetRouterRtpCapabilities", roomId, CancellationToken.None);
+
+                return routerRtpCapabilities;
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public async Task SetParticipantRtpCapabilities(string roomId, string userId, string rtpCapabilities)
+        {
+            if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+            {
+                _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+                if (participant != null)
+                {
+                    await Clients.Client(sfu.ConnectionId).SendAsync("SetParticipantRtpCapabilities", participant, rtpCapabilities, CancellationToken.None);
+                }
+            }
+        }
+
+        public async Task<string> CreateProduceTransport(string roomId)
+        {
+            if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+            {
+                _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+                if (participant != null)
+                {
+                    var transport = await Clients.Client(sfu.ConnectionId).InvokeAsync<string>("CreateProduceTransport", participant, CancellationToken.None);
+
+                    return transport;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public async Task ConnectProduceTransport(string roomId, string dtlsParameters)
+        {
+            if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+            {
+                _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+                if (participant != null)
+                {
+                    await Clients.Client(sfu.ConnectionId).SendAsync("ConnectProduceTransport", participant, dtlsParameters, CancellationToken.None);
+                }
+            }
+        }
+
+        public async Task<string> Produce(string roomId, string rtpParameters)
+        {
+            if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+            {
+                _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+                if (participant != null)
+                {
+                    var transport = await Clients.Client(sfu.ConnectionId).InvokeAsync<string>("produce", participant, rtpParameters, CancellationToken.None);
+
+                    return transport;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public async Task CloseProducer(string roomId, string producerId)
+        {
+            if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+            {
+                _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+                if (participant != null)
+                {
+                    await Clients.Client(sfu.ConnectionId).SendAsync("closeProducer", roomId, producerId, CancellationToken.None);
+                }
+            }
+        }
+
+        public async Task PauseProducer(string roomId, string producerId)
+        {
+            if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+            {
+                _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+                if (participant != null)
+                {
+                    await Clients.Client(sfu.ConnectionId).SendAsync("pauseProducer", roomId, producerId, CancellationToken.None);
+                }
+            }
+        }
+
+        public async Task ResumeProducer(string roomId, string producerId)
+        {
+            if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+            {
+                _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+                if (participant != null)
+                {
+                    await Clients.Client(sfu.ConnectionId).SendAsync("resumeProducer", roomId, producerId, CancellationToken.None);
+                }
+            }
+        }
+
+        public async Task<string> CreateConsumeTransport(string roomId)
+        {
+            if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+            {
+                _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+                if (participant != null)
+                {
+                    var transport = await Clients.Client(sfu.ConnectionId).InvokeAsync<string>("CreateConsumeTransport", participant, CancellationToken.None);
+
+                    return transport;
+                }
+                else
+                {
+                    return string.Empty;
+                }
+            }
+            else
+            {
+                return string.Empty;
+            }
+        }
+
+        public async Task ConnectConsumeTransport(string roomId, string dtlsParameters)
+        {
+            if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+            {
+                _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+                if (participant != null)
+                {
+                    await Clients.Client(sfu.ConnectionId).SendAsync("ConnectConsumeTransport", participant, dtlsParameters, CancellationToken.None);
+                }
+            }
+        }
+
+        public async Task ConsumerClosed(Participant user, string consumerId)
+        {
+            var connIds = _conferenceService.Connections.Where(s => s.Value.UserId != "SFU" && s.Value.RoomId == user.RoomId && s.Value.UserId == user.UserId).Select(s => s.Key).ToList();
+            if (connIds.Any())
+            {
+                try
+                {
+                    await Clients.Clients(connIds).SendAsync("ConsumerClosed", consumerId);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Error:" + ex);
+                }
+            }
+        }
+
+        public async Task ConsumerPaused(Participant user, string consumerId)
+        {
+            var connIds = _conferenceService.Connections.Where(s => s.Value.UserId != "SFU" && s.Value.RoomId == user.RoomId && s.Value.UserId != user.UserId).Select(s => s.Key).ToList();
+            if (connIds.Any())
+            {
+                await Clients.Clients(connIds).SendAsync("ConsumerPaused", consumerId);
+            }
+        }
+
+        public async Task ConsumerResumed(Participant user, string consumerId)
+        {
+            var connIds = _conferenceService.Connections.Where(s => s.Value.UserId != "SFU" && s.Value.RoomId == user.RoomId && s.Value.UserId != user.UserId).Select(s => s.Key).ToList();
+            if (connIds.Any())
+            {
+                await Clients.Clients(connIds).SendAsync("ConsumerResumed", consumerId);
+            }
+        }
+
+        public async Task StartConsumers(string roomId, string userId)
+        {
+            if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+            {
+                _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+                if (participant != null)
+                {
+                    await Clients.Client(sfu.ConnectionId).SendAsync("StartConsumers", participant, CancellationToken.None);
+                }
+            }
+        }
+
+        public async Task<bool> NewConsumer(string userId, string payload)
+        {
+            var participantItem = _conferenceService.Connections.Where(s => s.Value.UserId == userId).FirstOrDefault();
+            if (string.IsNullOrEmpty(participantItem.Key))
+            {
+                return false;
+            }
+            _conferenceService.TryGetParticipant(participantItem.Value.ConnectionId, out Participant? participant);
+            if (participant != null)
+            {
+                try
+                {
+                    var newConsumerResult = await Clients.Client(participant.ConnectionId).InvokeAsync<bool>("NewConsumer", payload, CancellationToken.None);
+                    return newConsumerResult;
+                }
+                catch (Exception ex)
+                {
+                    return false;
+                }
+
+            }
+            else
+                return false;
+        }
+
+        public override async Task OnConnectedAsync()
+        {
+            if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+            {
+                await Clients.Caller.SendAsync("SfuReady");
+            }
+            else
+            {
+                await Clients.Caller.SendAsync("SfuDisconnected");
+            }
+
+            await base.OnConnectedAsync();
+        }
+
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            var client = _conferenceService.Connections.FirstOrDefault(s => s.Key == Context.ConnectionId);
+            if (!string.IsNullOrEmpty(client.Key))
+            {
+                if (client.Value.ParticipantType == ParticipantType.SFU)
+                {
+                    await Clients.AllExcept(client.Key).SendAsync("SfuDisconnected");
+                    Console.WriteLine("SFU Disconnected.");
+                }
+                else
+                {
+                    _conferenceService.TryGetParticipant(Context.ConnectionId, out Participant? participant);
+                    if (_conferenceService.TryGetSfu(out Participant? sfu) && sfu != null)
+                    {
+                        if (participant != null)
+                        {
+                            await Clients.Client(sfu.ConnectionId).SendAsync("Disconnect", participant, CancellationToken.None);
+                        }
+                    }
+
+                    if (participant != null)
+                    {
+                        var roomClients = _conferenceService.Connections.Where(s => s.Value.RoomId == participant.RoomId).ToList();
+                        foreach (var roomClient in roomClients)
+                        {
+                            await Clients.Client(roomClient.Key).SendAsync("Disconnect", participant, CancellationToken.None);
+                        }
+                    }
+                }
+                _conferenceService.RemoveParticipant(Context.ConnectionId);
+                Console.WriteLine($"{client.Value.UserId} disconnected.");
+            }
+
+            await base.OnDisconnectedAsync(exception);
+        }
+
+    }
+}

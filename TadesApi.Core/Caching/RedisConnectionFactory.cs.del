@@ -1,0 +1,45 @@
+﻿using Microsoft.Extensions.Options;
+using StackExchange.Redis;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TadesApi.Core.Caching
+{
+    public class RedisConnectionFactory : IRedisConnectionFactory
+    {
+        private readonly Lazy<ConnectionMultiplexer> _connection;
+
+        public readonly IOptions<AppConfigs> _appConfigs;
+
+        public RedisConnectionFactory(IOptions<AppConfigs> config, IEncryption encryption)
+        {
+            _appConfigs = config;
+            var aaaa = _appConfigs.Value.RedisConnectionString;
+            ConfigurationOptions connStr = new ConfigurationOptions()
+            {
+                SyncTimeout = 500000,
+                ConnectRetry = 5,
+                Password = "",
+                
+
+                EndPoints =
+            {
+                    {_appConfigs.Value.RedisConnectionString }
+
+                //{ encryption.DecryptText(_appConfigs.Value.RedisEndPoint), Convert.ToInt32(encryption.DecryptText(_appConfigs.Value.RedisPort)) }
+            },
+                AbortOnConnectFail = false
+            };
+
+            this._connection = new Lazy<ConnectionMultiplexer>(() => ConnectionMultiplexer.Connect(connStr));
+        }
+
+        public ConnectionMultiplexer Connection()
+        {
+            return this._connection.Value;
+        }
+    }
+}

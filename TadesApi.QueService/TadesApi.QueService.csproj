@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Campaign\" />
+    <Folder Include="Sms\AuthManagement\" />
+    <Folder Include="Sms\OrderManagement\Interfaces\" />
+    <Folder Include="Sms\OrderManagement\Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\VideoPortalApi.Core\VideoPortalApi.Core.csproj" />
+    <ProjectReference Include="..\VideoPortalApi.Db\VideoPortalApi.Db.csproj" />
+  </ItemGroup>
+
+</Project>
