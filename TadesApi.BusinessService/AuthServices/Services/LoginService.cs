@@ -1,18 +1,19 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using SendWithBrevo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
-using TadesApi.Db.Entities;
-using SendWithBrevo;
 using TadesApi.BusinessService.AuthServices.Interfaces;
 using TadesApi.BusinessService.Common.Interfaces;
+using TadesApi.BusinessService.CommonServices.interfaces;
 using TadesApi.Core;
 using TadesApi.Core.Caching;
 using TadesApi.Core.Models.ConstantKeys;
 using TadesApi.Core.Models.ViewModels.AuthManagement;
 using TadesApi.Core.Security;
 using TadesApi.CoreHelper;
+using TadesApi.Db.Entities;
 using TadesApi.Db.Entities;
 using TadesApi.Db.Infrastructure;
 
@@ -25,16 +26,17 @@ public class LoginService : ILoginService
     private readonly IRepository<SysControllerActionTotal> _securityActionTotalRepository;
     private readonly IMapper _mapper;
     private readonly IEmailHelper _emailHelper;
-
+    private readonly IQueueService _queueService;
     public LoginService(IMapper mapper,
         IRepository<User> entityRepository,
         IRepository<ForgotPassword> forgotPasswordRepository,
         IEmailHelper emailHelper,
-        IRepository<SysControllerActionTotal> securityActionTotalRepository)
+        IRepository<SysControllerActionTotal> securityActionTotalRepository, IQueueService queueService)
     {
         _entityRepository = entityRepository;
         _forgotPasswordRepository = forgotPasswordRepository;
         _securityActionTotalRepository = securityActionTotalRepository;
+        _queueService = queueService;
         _mapper = mapper;
         _emailHelper = emailHelper;
     }
@@ -134,6 +136,7 @@ public class LoginService : ILoginService
 
         user.LastLoginTime = DateTime.Now;
         _entityRepository.Update(user);
+        _queueService.AddLog<User>(user, "Sisteme giriş yapıldı.", null);
 
         return toReturn;
     }

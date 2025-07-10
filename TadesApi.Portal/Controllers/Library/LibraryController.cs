@@ -2,6 +2,7 @@
 using TadesApi.Portal.ActionFilters;
 using TadesApi.Portal.Helpers;
 using Microsoft.AspNetCore.Mvc;
+using TadesApi.BusinessService.InvoiceServices.Interfaces;
 using TadesApi.Core;
 using TadesApi.Models.ViewModels.Library;
 using TadesApi.Models.ActionsEnum;
@@ -10,11 +11,11 @@ namespace TadesApi.Portal.Controllers.Library
 {
     [Route("api/library")]
     [ApiController]
-    public class LibraryController : BaseController
+    public class InvoiceController : BaseController
     {
         private readonly ILibraryService _libraryService;
 
-        public LibraryController(ILibraryService libraryService)
+        public InvoiceController(ILibraryService libraryService)
         {
             _libraryService = libraryService;
         }

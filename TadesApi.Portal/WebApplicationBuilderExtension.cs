@@ -1,7 +1,10 @@
 ﻿using AutoMapper;
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using TadesApi.Db.Entities.AppDbContext;
 using TadesApi.BusinessService.AppServices;
+using TadesApi.BusinessService.CommonServices.interfaces;
+using TadesApi.BusinessService.CommonServices.services;
 using TadesApi.Core;
 using TadesApi.Core.Caching;
 using TadesApi.Core.Models.Global;
@@ -64,7 +67,8 @@ public static class WebApplicationBuilderExtension
                 .LogTo(Console.WriteLine, LogLevel.Information)
                 .EnableSensitiveDataLogging()
         );
-
+        applicationBuilder.Services.AddHangfire(x =>
+            x.UseSqlServerStorage(applicationBuilder.Configuration.GetConnectionString("HangFireeConnectionString")));
         applicationBuilder.Services.AddDbContext<BtcDbContext>();
         applicationBuilder.Services.AddScoped<IBetechContextProvider, BetechContextProvider>();
         applicationBuilder.Services.AddScoped(typeof(IRepository<>), typeof(GeneralRepository<>));
@@ -89,6 +93,8 @@ public static class WebApplicationBuilderExtension
         applicationBuilder.Services.AddTransient<ISecurityService, SecurityService>();
         
         applicationBuilder.Services.AddTransient<ILocalizationService, LocalizationService>();
+        applicationBuilder.Services.AddTransient<IQueueService, QueueService>();
+        applicationBuilder.Services.AddTransient<IJobService, JobService>();
 
         applicationBuilder.Services.AddSwaggerGen(c =>
         {

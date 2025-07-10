@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Hangfire" Version="1.8.20" />
         <PackageReference Include="PuppeteerSharp" Version="19.0.1" />
    
 

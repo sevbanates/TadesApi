@@ -1,11 +1,11 @@
-using System.Globalization;
-using System.Net;
+using Hangfire;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Localization;
 using Microsoft.OpenApi.Models;
-
+using System.Globalization;
+using System.Net;
 using TadesApi.BusinessService.AppServices;
 using TadesApi.BusinessService.AuthServices.Interfaces;
 using TadesApi.BusinessService.AuthServices.Services;
@@ -13,6 +13,8 @@ using TadesApi.BusinessService.Common.Interfaces;
 using TadesApi.BusinessService.Common.Services;
 using TadesApi.BusinessService.InquiryServices.Interfaces;
 using TadesApi.BusinessService.InquiryServices.Services;
+using TadesApi.BusinessService.InvoiceServices.Interfaces;
+using TadesApi.BusinessService.InvoiceServices.Services;
 using TadesApi.BusinessService.LibraryServices.Interfaces;
 using TadesApi.BusinessService.LibraryServices.Services;
 using TadesApi.BusinessService.MessageServices.Interfaces;
@@ -118,7 +120,7 @@ builder.Services.AddTransient<ISysControllerActionRoleBusinessService, SysContro
 
 
 //*** LibraryService Resolvers
-builder.Services.AddTransient<ILibraryService, LibraryService>();
+builder.Services.AddTransient<IInvoiceService, InvoiceService>();
 
 //*** Inquiry Resolvers
 builder.Services.AddTransient<IInquiryService, InquiryService>();
@@ -182,4 +184,6 @@ app.UseCookiePolicy();
 app.UseCors("DefaultPolicy");
 app.UseAuthorization();
 app.MapControllers();
+app.UseHangfireDashboard();
+app.UseHangfireServer();
 app.Run();

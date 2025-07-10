@@ -17,47 +17,40 @@ public partial class AppDbContext : DbContext
     {
     }
 
-   
-
-
-   
+    public virtual DbSet<Customer> Customers { get; set; }
+    public virtual DbSet<Invoice> Invoices { get; set; }
+    public virtual DbSet<InvoiceItem> InvoiceItems { get; set; }
 
     public virtual DbSet<ForgotPassword> ForgotPassword { get; set; }
-
-   
-
-
-   
     public virtual DbSet<SysControllerAction> SysControllerAction { get; set; }
-
     public virtual DbSet<SysControllerActionRole> SysControllerActionRole { get; set; }
-
     public virtual DbSet<SysControllerActionTotal> SysControllerActionTotal { get; set; }
-
     public virtual DbSet<SysLanguage> SysLanguage { get; set; }
-
     public virtual DbSet<SysRole> SysRole { get; set; }
-
     public virtual DbSet<SysStringResource> SysStringResource { get; set; }
     public virtual DbSet<User> Users { get; set; }
-
-
-
-
-
     public virtual DbSet<VmenuAction> VmenuAction { get; set; }
+    public virtual DbSet<CmmLog> CmmLog { get; set; }
+
+
+
+
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=PanelDb;Persist Security Info=True;User ID=sa;Password=Kinney149;TrustServerCertificate=True;pooling=True;min pool size=0;max pool size=100;MultipleActiveResultSets=True;");
+        => optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=TadesDb;Persist Security Info=True;User ID=sa;Password=Kinney149;TrustServerCertificate=True;pooling=True;min pool size=0;max pool size=100;MultipleActiveResultSets=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-       
+
+        modelBuilder.Entity<Invoice>()
+            .HasIndex(i => i.InvoiceNumber)
+            .IsUnique();
 
 
-      
+
+
         modelBuilder.Entity<ForgotPassword>(entity =>
         {
             entity.Property(e => e.CreDate)
