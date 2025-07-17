@@ -11,6 +11,8 @@ using TadesApi.BusinessService.AuthServices.Interfaces;
 using TadesApi.BusinessService.AuthServices.Services;
 using TadesApi.BusinessService.Common.Interfaces;
 using TadesApi.BusinessService.Common.Services;
+using TadesApi.BusinessService.CustomerServices.Interfaces;
+using TadesApi.BusinessService.CustomerServices.Services;
 using TadesApi.BusinessService.InquiryServices.Interfaces;
 using TadesApi.BusinessService.InquiryServices.Services;
 using TadesApi.BusinessService.InvoiceServices.Interfaces;
@@ -121,6 +123,8 @@ builder.Services.AddTransient<ISysControllerActionRoleBusinessService, SysContro
 
 //*** LibraryService Resolvers
 builder.Services.AddTransient<IInvoiceService, InvoiceService>();
+builder.Services.AddTransient<ICustomerService, CustomerService>();
+builder.Services.AddTransient<ILibraryService, LibraryService>();
 
 //*** Inquiry Resolvers
 builder.Services.AddTransient<IInquiryService, InquiryService>();

@@ -8,6 +8,7 @@ using TadesApi.Core;
 using TadesApi.Core.Models.ConstantKeys;
 using TadesApi.Core.Models.Global;
 using TadesApi.Core.Session;
+using TadesApi.Models.CustomModels;
 using TadesApi.Models.ViewModels.Client;
 using TadesApi.Models.ViewModels.Inquiry;
 using TadesApi.Models.ViewModels.Library;
@@ -160,6 +161,25 @@ public class CommonController : ControllerBase
         catch (Exception ex)
         {
             return new ActionResponse<LibraryItemDto>
+            {
+                IsSuccess = false,
+                ReturnMessage = new List<string> { ex.Message }
+            };
+        }
+    }
+
+    [HttpGet]
+    [Route("countries-cities")]
+    public ActionResponse<CountryAndCityModel> GetCountryAndCity()
+    {
+        try
+        {
+            var response = _commonService.GetCountryAndCity();
+            return response;
+        }
+        catch (Exception ex)
+        {
+            return new ActionResponse<CountryAndCityModel>
             {
                 IsSuccess = false,
                 ReturnMessage = new List<string> { ex.Message }

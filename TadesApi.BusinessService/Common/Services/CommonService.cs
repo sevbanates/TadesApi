@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using Lsts;
 using TadesApi.BusinessService.Common.Interfaces;
 using TadesApi.Core;
 using TadesApi.Core.Models.ConstantKeys;
@@ -9,6 +10,7 @@ using TadesApi.CoreHelper;
 using TadesApi.Db;
 using TadesApi.Db.Entities;
 using TadesApi.Db.Infrastructure;
+using TadesApi.Models.CustomModels;
 using static TadesApi.Core.Models.RolesHelper;
 
 namespace TadesApi.BusinessService.Common.Services;
@@ -17,13 +19,17 @@ public class CommonService : ICommonService
 {
     private readonly BtcDbContext _dbContext;
     private readonly IRepository<User> _userRepository;
+    private readonly IRepository<Countries> _countriesRepository;
+    private readonly IRepository<Cities> _citiesRepository;
 
     public CommonService(
         BtcDbContext dbContext,
-        IRepository<User> userRepository)
+        IRepository<User> userRepository, IRepository<Countries> countriesRepository, IRepository<Cities> citiesRepository)
     {
         _dbContext = dbContext;
         _userRepository = userRepository;
+        _countriesRepository = countriesRepository;
+        _citiesRepository = citiesRepository;
     }
 
 
@@ -65,6 +71,23 @@ public class CommonService : ICommonService
             .ToList();
 
         return new ActionResponse<TextIntValueDto> { EntityList = toReturn };
+    }
+
+    public ActionResponse<CountryAndCityModel> GetCountryAndCity()
+    {
+        ActionResponse<CountryAndCityModel> response = new();
+        var countries = _countriesRepository.TableNoTracking
+            .Select(x => new SelectNumberModel() { Value = x.Id, Text = x.Name })
+            .ToList();
+        var cities = _citiesRepository.TableNoTracking
+            .Select(x => new SelectNumberModel { Value = x.Id, Text = x.Name })
+            .ToList();
+        response.Entity = new CountryAndCityModel
+        {
+            Countries = countries,
+            Cities = cities
+        };
+        return response;
     }
 
     public ActionResponse<TextIntValueDto> GetUserById(long userId)

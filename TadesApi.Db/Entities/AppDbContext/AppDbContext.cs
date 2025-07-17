@@ -31,6 +31,8 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
     public virtual DbSet<VmenuAction> VmenuAction { get; set; }
     public virtual DbSet<CmmLog> CmmLog { get; set; }
+    public virtual DbSet<Countries> Countries { get; set; }
+    public virtual DbSet<Cities> Cities { get; set; }
 
 
 

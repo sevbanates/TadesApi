@@ -7,7 +7,9 @@ using TadesApi.Core.Models.ViewModels.AuthManagement;
 using TadesApi.Db.Entities;
 using TadesApi.Models.ViewModels.AuthManagement;
 using TadesApi.Models.ViewModels.Client;
+using TadesApi.Models.ViewModels.Customer;
 using TadesApi.Models.ViewModels.Inquiry;
+using TadesApi.Models.ViewModels.Invoice;
 using TadesApi.Models.ViewModels.Library;
 using TadesApi.Models.ViewModels.Message;
 using TadesApi.Models.ViewModels.PotentialClient;
@@ -75,6 +77,17 @@ public class MappingProfile : Profile
         CreateMap<Message, CreateMessageDto>().ReverseMap();
 
         CreateMap<User, UserBasicDto>().ReverseMap();
-      
+
+
+
+        CreateMap<Invoice, InvoiceCreateDto>().ReverseMap();
+        CreateMap<Invoice, InvoiceUpdateDto>().ReverseMap();
+        CreateMap<Invoice, InvoiceDto>().ReverseMap();       
+        
+        CreateMap<Customer, CustomerCreateDto>().ReverseMap();
+        CreateMap<Customer, CustomerUpdateDto>().ReverseMap();
+        CreateMap<Customer, CustomerDto>().ReverseMap();
+
+
     }
 }

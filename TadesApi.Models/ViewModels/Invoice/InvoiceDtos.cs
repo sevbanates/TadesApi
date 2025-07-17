@@ -12,14 +12,62 @@ namespace TadesApi.Models.ViewModels.Invoice
 {
     public class InvoiceCreateDto
     {
+
+
+
+        #region RecipientInfo
+
+
+        [Required]
+        [MaxLength(11)]
+        [MinLength(10)]
+        public int Vkn { get; set; }
+
+        [Required]
+        public string FirstName { get; set; }
+
+        [Required]
+        public string LastName { get; set; }
+
+        public string? Title { get; set; }
+
+        [Required]
+        public string TaxOffice { get; set; }
+
+        [Required]
+        public string Country { get; set; }
+
+        [Required]
+        public string City { get; set; }
+
+        [Required]
+        public string District { get; set; }
+
+        [Required]
+        public string Address { get; set; }
+
+        [Required]
+        public string Telephone { get; set; }
+
+        #endregion
+
+
+        #region InvoiceHeader
+        [Required]
         public DateTime InvoiceDate { get; set; } = DateTime.Now;
 
         [Required]
         [MaxLength(50)]
         public string InvoiceNumber { get; set; } = null!;
+        public InvoiceTypes InvoiceType { get; set; }
+        public Scenario Scenario { get; set; }
+        public int Currency { get; set; }
+        public string Note { get; set; }
+        public DateTime? DeliveryDate { get; set; }
 
+        #endregion
         [Required]
-        public int CustomerId { get; set; }
+        public string DeliveryAddress { get; set; }
 
         public List<InvoiceItemCreateDto> Items { get; set; } = new();
 
@@ -27,6 +75,8 @@ namespace TadesApi.Models.ViewModels.Invoice
         public decimal TotalAmount { get; set; } = 0m;
 
         public InvoiceStatus Status { get; set; } = InvoiceStatus.Draft;
+      
+
     }
 
     public class InvoiceUpdateDto: IBaseUpdateModel

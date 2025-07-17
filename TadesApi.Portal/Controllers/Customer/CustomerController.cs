@@ -1,40 +1,80 @@
-﻿using TadesApi.BusinessService.LibraryServices.Interfaces;
+﻿using Microsoft.AspNetCore.Mvc;
+using TadesApi.BusinessService.CustomerServices.Interfaces;
+using TadesApi.BusinessService.InvoiceServices.Interfaces;
+using TadesApi.BusinessService.LibraryServices.Interfaces;
+using TadesApi.Core;
+using TadesApi.Core.Models.Global;
+using TadesApi.Models.ActionsEnum;
+using TadesApi.Models.ViewModels.Client;
+using TadesApi.Models.ViewModels.Customer;
+using TadesApi.Models.ViewModels.Invoice;
+using TadesApi.Models.ViewModels.Library;
 using TadesApi.Portal.ActionFilters;
 using TadesApi.Portal.Helpers;
-using Microsoft.AspNetCore.Mvc;
-using TadesApi.BusinessService.InvoiceServices.Interfaces;
-using TadesApi.Core;
-using TadesApi.Models.ViewModels.Library;
-using TadesApi.Models.ActionsEnum;
-using TadesApi.Models.ViewModels.Invoice;
 
-namespace TadesApi.Portal.Controllers.Invoice
+namespace TadesApi.Portal.Controllers.Customer
 {
-    [Route("api/invoices")]
+    [Route("api/customer")]
     [ApiController]
-    public class InvoiceController : BaseController
+    public class CustomerController : BaseController
     {
-        private readonly IInvoiceService _invoiceService;
+        private readonly ICustomerService _customerService;
 
-        public InvoiceController(IInvoiceService invoiceService)
+        public CustomerController(ICustomerService customerService)
         {
-            _invoiceService = invoiceService;
+            _customerService = customerService;
         }
 
         //[SecurityState((int)LibrarySecurity.Save)]
         [HttpPost]
         [Route("create-invoice")]
-        public ActionResponse<bool> CreateInvoice([FromBody] InvoiceCreateDto input)
+        public ActionResponse<bool> CreateCustomer([FromBody] CustomerCreateDto input)
         {
             try
             {
-                var response = _invoiceService.CreateInvoice(input);
+                var response = _customerService.CreateCustomer(input);
                 response.Token = _appSecurity.Token;
                 return response;
             }
             catch (Exception ex)
             {
-                return ErrorResponse(new ActionResponse<bool>(), "CreateInvoice :" + ex.Message);
+                return ErrorResponse(new ActionResponse<bool>(), "CreateCustomer :" + ex.Message);
+            }
+        }
+
+
+        [SecurityState((int)ClientSecurity.List)]
+        [HttpGet]
+        public PagedAndSortedResponse<CustomerDto> GetMulti([FromQuery] PagedAndSortedSearchInput input)
+        {
+            try
+            {
+                var response = _customerService.GetMulti(input);
+                response.Token = _appSecurity.Token;
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new PagedAndSortedResponse<CustomerDto>(), "GetMulti Error :" + ex.Message);
+            }
+        }
+
+
+        [SecurityState((int)ClientSecurity.View)]
+        [HttpGet]
+        [Route("{id}/{guidId}")]
+        public ActionResponse<CustomerDto> GetSingle(long id, Guid guidId)
+        {
+            try
+            {
+                var response = _customerService.GetSingle(id, guidId);
+                response.Token = _appSecurity.Token;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new ActionResponse<CustomerDto>(), "GetSingle :" + ex.Message);
             }
         }
 
