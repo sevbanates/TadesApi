@@ -25,14 +25,12 @@ namespace TadesApi.Portal.Controllers.Customer
             _customerService = customerService;
         }
 
-        //[SecurityState((int)LibrarySecurity.Save)]
-        [HttpPost]
-        [Route("create-invoice")]
-        public ActionResponse<bool> CreateCustomer([FromBody] CustomerCreateDto input)
+        [HttpPost("create")]
+        public ActionResponse<bool> Create([FromBody] CustomerCreateDto model)
         {
             try
             {
-                var response = _customerService.CreateCustomer(input);
+                var response = _customerService.CreateCustomer(model);
                 response.Token = _appSecurity.Token;
                 return response;
             }
@@ -40,7 +38,27 @@ namespace TadesApi.Portal.Controllers.Customer
             {
                 return ErrorResponse(new ActionResponse<bool>(), "CreateCustomer :" + ex.Message);
             }
+    
         }
+
+        [HttpPut("update/{id}")]
+        public ActionResponse<bool> Update(int id, [FromBody] CustomerUpdateDto model)
+        {
+
+
+            try
+            {
+                var response = _customerService.UpdateCustomer(id, model);
+                response.Token = _appSecurity.Token;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new ActionResponse<bool>(), "Update :" + ex.Message);
+            }
+    
+        }
+
 
 
         [SecurityState((int)ClientSecurity.List)]

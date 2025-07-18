@@ -31,7 +31,6 @@ namespace TadesApi.Db.Entities
         public string? MobilePhone { get; set; }
 
         // Adres Bilgileri
-        [MaxLength(100)]
         public int Country { get; set; }
 
         [MaxLength(100)]

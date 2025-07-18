@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TadesApi.Core;
 using TadesApi.Models.ActionsEnum;
 
@@ -13,13 +10,13 @@ namespace TadesApi.Db.Entities
     public partial class Invoice : BaseEntity
     {
         public int Id { get; set; }
-        #region RecipientInfo
 
+        #region RecipientInfo
 
         [Required]
         [MaxLength(11)]
         [MinLength(10)]
-        public int Vkn { get; set; }
+        public string Vkn { get; set; } // int -> string
 
         [Required]
         public string FirstName { get; set; }
@@ -47,16 +44,26 @@ namespace TadesApi.Db.Entities
         [Required]
         public string Telephone { get; set; }
 
+        [MaxLength(100)]
+        public string? Email { get; set; } // eklendi
+
         #endregion
 
-
         #region InvoiceHeader
+
         [Required]
         public DateTime InvoiceDate { get; set; } = DateTime.Now;
 
         [Required]
         [MaxLength(50)]
         public string InvoiceNumber { get; set; } = null!;
+
+        [MaxLength(10)]
+        public string? Seri { get; set; } // eklendi
+
+        [Required]
+        public Guid Uuid { get; set; } = Guid.NewGuid(); // eklendi
+
         public InvoiceTypes InvoiceType { get; set; }
         public Scenario Scenario { get; set; }
         public int Currency { get; set; }
@@ -64,9 +71,9 @@ namespace TadesApi.Db.Entities
         public DateTime? DeliveryDate { get; set; }
 
         #endregion
+
         [Required]
         public string DeliveryAddress { get; set; }
-
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalAmount { get; set; } = 0m;
@@ -74,5 +81,11 @@ namespace TadesApi.Db.Entities
         public InvoiceStatus Status { get; set; } = InvoiceStatus.Draft;
 
         public ICollection<InvoiceItem> Items { get; set; } = new List<InvoiceItem>();
+
+        [MaxLength(100)]
+        public string? GibStatus { get; set; } // eklendi
+
+        [MaxLength(500)]
+        public string? GibMessage { get; set; } // eklendi
     }
 }
