@@ -23,6 +23,7 @@ namespace TadesApi.Db.Entities
         // İletişim Bilgileri
         [MaxLength(100)]
         public string? Email { get; set; }
+        public string? Title { get; set; }
 
         [MaxLength(20)]
         public string? Phone { get; set; }

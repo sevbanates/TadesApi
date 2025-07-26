@@ -25,5 +25,17 @@ namespace TadesApi.Models.CustomModels
         public int ActionNo { get; set; }
         public bool? Active { get; set; }
 
+    }   
+    
+    public class CustomerSelectModel
+    {
+        public long Id { get; set; }
+        public string FullName { get; set; }
+        public string Name { get; set; }
+        public string Surname { get; set; }
+        public string? Title { get; set; }
+        public string VknTckn { get; set; }
+        public bool IsCompany { get; set; }
+
     }
 }

@@ -21,6 +21,8 @@ namespace TadesApi.Models.ViewModels.Customer
 
         // İletişim Bilgileri
         [MaxLength(100)] public string? Email { get; set; }
+        public string? Title { get; set; }
+
 
         [MaxLength(20)] public string? Phone { get; set; }
 
@@ -55,6 +57,8 @@ namespace TadesApi.Models.ViewModels.Customer
         [Required][MaxLength(200)] public string Name { get; set; } = null!;
         [Required][MaxLength(200)] public string Surname { get; set; } = null!;
         [Required] [MaxLength(11)] public string VknTckn { get; set; } = null!;
+
+        public string? Title { get; set; }
 
         public bool IsCompany { get; set; }
 

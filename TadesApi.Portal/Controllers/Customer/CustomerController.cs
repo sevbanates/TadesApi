@@ -96,6 +96,8 @@ namespace TadesApi.Portal.Controllers.Customer
             }
         }
 
+
+
         //[SecurityState((int)LibrarySecurity.View)]
         //[HttpGet]
         //[Route("{id}/{guidId}")]

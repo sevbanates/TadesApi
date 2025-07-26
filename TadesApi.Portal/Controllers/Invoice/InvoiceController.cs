@@ -1,12 +1,16 @@
-﻿using TadesApi.BusinessService.LibraryServices.Interfaces;
+﻿using Lsts;
+using Microsoft.AspNetCore.Mvc;
+using System;
+using TadesApi.BusinessService.InvoiceServices.Interfaces;
+using TadesApi.BusinessService.LibraryServices.Interfaces;
+using TadesApi.Core;
+using TadesApi.Models.ActionsEnum;
+using TadesApi.Models.CustomModels;
+using TadesApi.Models.ViewModels.Customer;
+using TadesApi.Models.ViewModels.Invoice;
+using TadesApi.Models.ViewModels.Library;
 using TadesApi.Portal.ActionFilters;
 using TadesApi.Portal.Helpers;
-using Microsoft.AspNetCore.Mvc;
-using TadesApi.BusinessService.InvoiceServices.Interfaces;
-using TadesApi.Core;
-using TadesApi.Models.ViewModels.Library;
-using TadesApi.Models.ActionsEnum;
-using TadesApi.Models.ViewModels.Invoice;
 
 namespace TadesApi.Portal.Controllers.Invoice
 {
@@ -35,6 +39,24 @@ namespace TadesApi.Portal.Controllers.Invoice
             catch (Exception ex)
             {
                 return ErrorResponse(new ActionResponse<bool>(), "CreateInvoice :" + ex.Message);
+            }
+        }
+
+
+        [SecurityState((int)ClientSecurity.View)]
+        [HttpGet]
+        [Route("get-customers")]
+        public ActionResponse<List<CustomerSelectModel>> GetCustomers()
+        {
+            try
+            {
+                var response = _invoiceService.GetCustomers();
+                response.Token = _appSecurity.Token;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new ActionResponse<List<CustomerSelectModel>>(), "GetCustomers :" + ex.Message);
             }
         }
 
