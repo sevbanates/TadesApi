@@ -20,5 +20,9 @@ public interface IUserService : IBaseServiceNg<CreateUserDto, UpdateUserDto, Use
     ActionResponse<bool> UpdateSelfPassword(UpdateSelfPasswordDto input);
     ActionResponse<bool> UpdateOthersPassword(long userId, UpdateOthersPasswordDto input);
 
+    ActionResponse<bool> SendRequest(UserRequestCreateDto dto);
+    ActionResponse<bool> HandleRequest(UserRequestActionDto dto);
+    ActionResponse<bool> GetMyAllRequests();
+
     //ActionResponse<bool> DeleteUser(long userId, Guid guidId);
 }

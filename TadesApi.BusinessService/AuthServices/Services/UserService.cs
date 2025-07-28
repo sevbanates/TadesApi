@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using AutoMapper;
+﻿using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SendWithBrevo;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using TadesApi.BusinessService._base;
 using TadesApi.BusinessService.AppServices;
 using TadesApi.BusinessService.AuthServices.Interfaces;
@@ -16,6 +16,7 @@ using TadesApi.Core.Session;
 using TadesApi.CoreHelper;
 using TadesApi.Db.Entities;
 using TadesApi.Db.Infrastructure;
+using TadesApi.Models.ActionsEnum;
 using TadesApi.Models.ViewModels.Client;
 
 namespace TadesApi.BusinessService.AuthServices.Services;
@@ -23,16 +24,16 @@ namespace TadesApi.BusinessService.AuthServices.Services;
 public class UserService : BaseServiceNg<User, UserBasicDto, CreateUserDto, UpdateUserDto>, IUserService
 {
     private readonly IEmailHelper _emailHelper;
-
+    private readonly IRepository<UserRequest> _userRequestRepo;
     public UserService(
         IRepository<User> entityRepository,
         ILocalizationService locManager,
         IMapper mapper,
         IEmailHelper emailHelper,
-        ICurrentUser session) : base(entityRepository, locManager, mapper, session)
+        ICurrentUser session, IRepository<UserRequest> userRequestRepo) : base(entityRepository, locManager, mapper, session)
     {
         _emailHelper = emailHelper;
-        
+        _userRequestRepo = userRequestRepo;
     }
 
 
@@ -170,4 +171,81 @@ public class UserService : BaseServiceNg<User, UserBasicDto, CreateUserDto, Upda
         return new ActionResponse<bool> { Entity = true };
     }
 
+    public ActionResponse<bool> SendRequest(UserRequestCreateDto dto)
+    {
+        var response = new ActionResponse<bool>();
+
+        
+        var targetUserId = _entityRepository.TableNoTracking
+            .Where(x => x.Email == dto.TargetUserEmail)
+            .Select(x => x.Id)
+            .FirstOrDefault();
+        if (targetUserId.IsInitial())
+        {
+            response.IsSuccess = false;
+            response.ReturnMessage.Add("Girilen mail adresine ait kullanıcı bulunamadı.");
+            return response;
+        }
+        // Aynı kullanıcıya daha önce istek gönderilmiş mi kontrolü
+        var exists = _userRequestRepo.TableNoTracking.Any(x =>
+            x.RequesterId == _session.UserId && x.TargetUserEmail == dto.TargetUserEmail && x.Status == RequestStatus.Pending);
+
+      
+        if (exists)
+        {
+            response.IsSuccess = false;
+            response.ReturnMessage.Add("Zaten bekleyen bir isteğiniz var.");
+            return response;
+        }
+
+        var request = new UserRequest
+        {
+            RequesterId = _session.UserId,
+            TargetUserEmail = dto.TargetUserEmail,
+            TargetUserId = targetUserId,
+            Status = RequestStatus.Pending,
+            //CreDate = DateTime.Now,
+            //GuidId = Guid.NewGuid()
+        };
+
+        _userRequestRepo.Insert(request);
+        response.IsSuccess = true;
+        response.Entity = true;
+        return response;
+    }
+
+    public ActionResponse<bool> HandleRequest(UserRequestActionDto dto)
+    {
+        var response = new ActionResponse<bool>();
+        var request = _userRequestRepo.Table.FirstOrDefault(x => x.Id == dto.RequestId && x.TargetUserEmail == _session.Email);
+
+        if (request == null || request.Status != RequestStatus.Pending)
+        {
+            response.IsSuccess = false;
+            response.ReturnMessage.Add("İstek bulunamadı veya zaten işlenmiş.");
+            return response;
+        }
+
+        if (dto.Accept)
+        {
+            request.Status = RequestStatus.Accepted;
+            var user = _entityRepository.GetById(_session.UserId);
+            user.AccounterId = request.RequesterId;
+            _entityRepository.Update(user);
+        }
+        else
+        {
+            request.Status = RequestStatus.Rejected;
+        }
+
+        _userRequestRepo.Update(request);
+        response.IsSuccess = true;
+        response.Entity = true;
+        return response;
+    }
+
+    public ActionResponse<bool> GetMyAllRequests()
+    {
+        throw new NotImplementedException();
+    }
 }

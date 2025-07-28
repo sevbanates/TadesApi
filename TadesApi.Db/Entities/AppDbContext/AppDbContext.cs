@@ -33,11 +33,7 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<CmmLog> CmmLog { get; set; }
     public virtual DbSet<Countries> Countries { get; set; }
     public virtual DbSet<Cities> Cities { get; set; }
-
-
-
-
-
+    public virtual DbSet<UserRequest> UserRequests { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
@@ -152,6 +148,22 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Value).HasMaxLength(1024);
 
             entity.HasOne(d => d.SysLanguage).WithMany(p => p.SysStringResource).HasForeignKey(d => d.SysLanguageId);
+        });
+
+        modelBuilder.Entity<UserRequest>(entity =>
+        {
+            entity.Property(e => e.RequesterId).HasColumnName("RequesterID");
+            entity.Property(e => e.TargetUserId).HasColumnName("TargetUserID");
+
+            entity.HasOne(ur => ur.Requester)
+                .WithMany()
+                .HasForeignKey(ur => ur.RequesterId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(ur => ur.TargetUser)
+                .WithMany()
+                .HasForeignKey(ur => ur.TargetUserId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         OnModelCreatingPartial(modelBuilder);

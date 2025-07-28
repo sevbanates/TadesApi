@@ -2,6 +2,7 @@
 using TadesApi.BusinessService.AuthServices.Interfaces;
 using TadesApi.Core;
 using TadesApi.Core.Models.ViewModels.AuthManagement;
+using TadesApi.Db.Entities;
 using TadesApi.Models.ActionsEnum;
 using TadesApi.Models.ViewModels.Client;
 using TadesApi.Portal.ActionFilters;
@@ -187,5 +188,37 @@ public class UserController : BaseController
         }
     }
 
+    [Route("handle-accounter-request")]
+    [HttpPost]
+    public ActionResponse<bool> HandleRequest([FromBody] UserRequestActionDto dto)
+    {
+        try
+        {
+            //long userId = /* oturumdan al */;
+            var response = _service.HandleRequest(dto);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            return ErrorResponse(new ActionResponse<bool>(), "HandleRequest :" + ex.Message);
+        }
 
+    }
+
+    [Route("send-accounter-request")]
+    [HttpPost]
+    public ActionResponse<bool> SendRequest([FromBody] UserRequestCreateDto dto)
+    {
+        try
+        {
+             // requesterId'i oturumdan veya token'dan almalısın
+            // //long requesterId = /* oturumdan al */;
+            var response = _service.SendRequest(dto);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            return ErrorResponse(new ActionResponse<bool>(), "HandleRequest :" + ex.Message);
+        }
+    }
 }

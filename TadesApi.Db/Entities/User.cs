@@ -7,7 +7,7 @@ using TadesApi.Db.PartialEntites;
 
 namespace TadesApi.Db.Entities
 {
-    public class User : BaseEntity, ISoftDeletable
+    public partial class User : BaseEntity, ISoftDeletable
     {
         public long CompanyId { get; set; }
 
@@ -46,6 +46,8 @@ namespace TadesApi.Db.Entities
         //[InverseProperty("Consultant")] public virtual ICollection<Client> Clients { get; set; } = new List<Client>();
         //public virtual ICollection<ScheduleEvent> ScheduleEvents { get; set; } = new List<ScheduleEvent>();
         
-  
+        public long? AccounterId { get; set; }
+        public virtual User? Accounter { get; set; }
+        public virtual ICollection<User> Clients { get; set; } = new List<User>();
     }
 }
