@@ -66,9 +66,6 @@ public class CreateUserDto
     [Range(100, 104)] [Required] public int RoleId { get; set; }
 
     public bool IsActive { get; set; }
-    
-    public long? ClientId { get; set; }
-    
     public bool IsPrimaryForClient { get; set; }
 }
 
