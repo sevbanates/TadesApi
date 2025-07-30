@@ -24,7 +24,7 @@ public enum ControllerActionRoleSecurity
     [Display(Name = "Delete")] Delete = 8,
 }
 
-public enum ClientSecurity
+public enum CustomerSecurity
 {
     [Display(Name = "List")] List = 1,
 
@@ -33,7 +33,7 @@ public enum ClientSecurity
     [Display(Name = "Save")] Save = 4,
 
     [Display(Name = "Delete")] Delete = 8,
-    [Display(Name = "Manage")] Manage = 16,
+    //[Display(Name = "Manage")] Manage = 16,
 }
 
 

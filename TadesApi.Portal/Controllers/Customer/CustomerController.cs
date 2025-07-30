@@ -25,6 +25,7 @@ namespace TadesApi.Portal.Controllers.Customer
             _customerService = customerService;
         }
 
+        [SecurityState((int)CustomerSecurity.Save)]
         [HttpPost("create")]
         public ActionResponse<bool> Create([FromBody] CustomerCreateDto model)
         {
@@ -41,6 +42,7 @@ namespace TadesApi.Portal.Controllers.Customer
     
         }
 
+        [SecurityState((int)CustomerSecurity.Save)]
         [HttpPut("update/{id}")]
         public ActionResponse<bool> Update(int id, [FromBody] CustomerUpdateDto model)
         {
@@ -61,7 +63,7 @@ namespace TadesApi.Portal.Controllers.Customer
 
 
 
-        [SecurityState((int)ClientSecurity.List)]
+        [SecurityState((int)CustomerSecurity.List)]
         [HttpGet]
         public PagedAndSortedResponse<CustomerDto> GetMulti([FromQuery] PagedAndSortedSearchInput input)
         {
@@ -79,7 +81,7 @@ namespace TadesApi.Portal.Controllers.Customer
         }
 
 
-        [SecurityState((int)ClientSecurity.View)]
+        [SecurityState((int)CustomerSecurity.View)]
         [HttpGet]
         [Route("{id}/{guidId}")]
         public ActionResponse<CustomerDto> GetSingle(long id, Guid guidId)

@@ -133,8 +133,8 @@ namespace TadesApi.BusinessService.AuthServices.Services
                         Controller = model.ControllerName,
                         RoleId = model.RoleId,
                         Total = entityList.Sum(x => x.ActionNo),
-                        //CreDate = DateTime.Now
-                        
+                        CreDate = DateTime.Now
+
                     };
                     _controllerActionTotalRepository.Insert(newTotalActionRecord);
                 }

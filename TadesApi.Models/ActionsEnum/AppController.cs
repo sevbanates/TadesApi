@@ -11,20 +11,20 @@ namespace TadesApi.Models.ActionsEnum
         [Display(Name = "SysControllerActionRole")]
         ControllerActionRole = 2,
 
-        [Display(Name = "WebSite")]
-        WebSite = 3,
+        [Display(Name = "Invoice")]
+        Invoice = 3,
         
-        [Display(Name = "WebPage")]
-        WebPage = 5,
+        [Display(Name = "Customer")]
+        Customer = 5,
 
-        [Display(Name = "ScheduleEvent")]
-        ScheduleEvent = 6, 
+        //[Display(Name = "ScheduleEvent")]
+        //ScheduleEvent = 6, 
         
-        [Display(Name = "Inquiry")]
-        Inquiry = 10,
+        //[Display(Name = "Inquiry")]
+        //Inquiry = 10,
         
-        [Display(Name = "Message")]
-        Message = 11,
+        //[Display(Name = "Message")]
+        //Message = 11,
     }
 
     public static class AppControllerItems
