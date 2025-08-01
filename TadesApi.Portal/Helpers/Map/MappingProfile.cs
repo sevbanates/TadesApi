@@ -88,6 +88,17 @@ public class MappingProfile : Profile
         CreateMap<Customer, CustomerUpdateDto>().ReverseMap();
         CreateMap<Customer, CustomerDto>().ReverseMap();
 
+        CreateMap<Ticket, TicketDto>().ReverseMap();
+        CreateMap<Ticket, CreateTicketDto>().ReverseMap();
+        CreateMap<Ticket, UpdateTicketDto>().ReverseMap();
+
+        CreateMap<TicketMessage, TicketMessageDto>();
+        //.ForMember(dest => dest.Attachments, opt => opt.MapFrom(src =>
+        //    string.IsNullOrEmpty(src.Attachments)
+        //        ? null
+        //        : src.Attachments.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList()
+        //));
+
 
     }
 }

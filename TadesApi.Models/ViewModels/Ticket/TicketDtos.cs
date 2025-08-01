@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Net.Sockets;
 using TadesApi.Core.Models.Global;
 using TadesApi.Models.ActionsEnum;
 
@@ -10,14 +12,28 @@ public class CreateTicketDto
     public TicketPriority Priority { get; set; }
     public TicketCategory Category { get; set; }
     public string Email { get; set; }
+    public string Message { get; set; }
 }
 
 public class TicketMessageDto
 {
     public long TicketId { get; set; }
+
+    public long SenderId { get; set; }
+
+    public string SenderName { get; set; }
+
+    public string SenderEmail { get; set; }
+
+    public string SenderType { get; set; } // "user" | "admin"
+
     public string Message { get; set; }
-    public bool IsInternal { get; set; }
-    public List<string>? Attachments { get; set; }
+
+    public string? Attachments { get; set; } // Dosya yollarý virgül ile ayrýlmýþ
+
+    public DateTime CreatedAt { get; set; }
+
+    public bool IsInternal { get; set; } // Admin'ler arasý notlar için
 }
 
 public class TicketResponseDto
@@ -41,6 +57,7 @@ public class UpdateTicketDto : IBaseUpdateModel
 
 public class TicketDto : BaseModel
 {
+    public string GuidId { get; set; }
     public string Title { get; set; }
     public string Description { get; set; }
     public TicketStatus Status { get; set; }

@@ -124,6 +124,7 @@ builder.Services.AddTransient<ISysControllerActionRoleBusinessService, SysContro
 //*** LibraryService Resolvers
 builder.Services.AddTransient<IInvoiceService, InvoiceService>();
 builder.Services.AddTransient<ICustomerService, CustomerService>();
+builder.Services.AddTransient<ITicketService, TicketService>();
 builder.Services.AddTransient<ILibraryService, LibraryService>();
 
 //*** Inquiry Resolvers

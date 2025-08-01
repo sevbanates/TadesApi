@@ -8,7 +8,7 @@ using TadesApi.Portal.ActionFilters;
 using TadesApi.Portal.Helpers;
 
 [ApiController]
-[Route("api/ticket")]
+[Route("api/tickets")]
 public class TicketController : BaseController
 {
     private readonly ITicketService _ticketService;
@@ -70,7 +70,7 @@ public class TicketController : BaseController
     {
         try
         {
-            var response = _ticketService.GetSingle(id, guidId);
+            var response = _ticketService.GetTicket(id, guidId);
             response.Token = _appSecurity.Token;
             return response;
         }
