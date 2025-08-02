@@ -93,6 +93,7 @@ public class MappingProfile : Profile
         CreateMap<Ticket, UpdateTicketDto>().ReverseMap();
 
         CreateMap<TicketMessage, TicketMessageDto>();
+        CreateMap<TicketMessage, CreateTicketMessageDto>();
         //.ForMember(dest => dest.Attachments, opt => opt.MapFrom(src =>
         //    string.IsNullOrEmpty(src.Attachments)
         //        ? null

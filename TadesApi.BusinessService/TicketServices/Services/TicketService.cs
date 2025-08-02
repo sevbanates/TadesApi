@@ -1,15 +1,18 @@
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using Microsoft.EntityFrameworkCore;
 using TadesApi.BusinessService._base;
 using TadesApi.BusinessService.AppServices;
 using TadesApi.BusinessService.InvoiceServices.Interfaces;
 using TadesApi.Core;
 using TadesApi.Core.Models.Global;
 using TadesApi.Core.Session;
+using TadesApi.CoreHelper;
+using TadesApi.Db;
 using TadesApi.Db.Entities;
 using TadesApi.Db.Infrastructure;
 using TadesApi.Models.AppMessages;
@@ -18,50 +21,63 @@ public class TicketService : BaseServiceNg<Ticket, TicketDto, CreateTicketDto, U
 {
     private readonly IRepository<TicketMessage> _messageRepo;
     private readonly IRepository<User> _userRepo;
-
-    public TicketService(IRepository<Ticket> entityRepository, ILocalizationService locManager, IMapper mapper, ICurrentUser session, IRepository<TicketMessage> messageRepo, IRepository<User> userRepo) : base(entityRepository, locManager, mapper, session)
+    protected readonly BtcDbContext _dbContext;
+    public TicketService(IRepository<Ticket> entityRepository, ILocalizationService locManager, IMapper mapper, ICurrentUser session, IRepository<TicketMessage> messageRepo, IRepository<User> userRepo, BtcDbContext dbContext) : base(entityRepository, locManager, mapper, session)
     {
         _messageRepo = messageRepo;
         _userRepo = userRepo;
+        _dbContext = dbContext;
     }
 
     public ActionResponse<long> CreateTicket(CreateTicketDto dto, long userId, string userEmail)
     {
-        var date = DateTime.Now;
-        var ticket = new Ticket
+        var response = new ActionResponse<long>();
+        using var transaction = _dbContext.Database.BeginTransaction();
+        try
         {
-            Title = dto.Title,
-            Description = dto.Description,
-            Status = TicketStatus.Open,
-            Priority = dto.Priority,
-            Category = dto.Category,
-            CreatedBy = userId,
-            CreatedByEmail = userEmail,
-            CreatedAt = date,
-            UpdatedAt = date
-        };
-        _entityRepository.Insert(ticket);
+            var date = DateTime.Now;
+            var ticket = new Ticket
+            {
+                Title = dto.Title,
+                Status = TicketStatus.Open,
+                Priority = dto.Priority,
+                Category = dto.Category,
+                CreatedBy = userId,
+                CreatedByEmail = userEmail,
+                CreatedAt = date,
+                UpdatedAt = date
+            };
+            _entityRepository.Insert(ticket);
 
-        var user = _userRepo.TableNoTracking.FirstOrDefault(x => x.Id == userId);
-        var ticketMessage = new TicketMessage
+            var user = _userRepo.TableNoTracking.FirstOrDefault(x => x.Id == userId);
+            var ticketMessage = new TicketMessage
+            {
+                CreatedAt = date,
+                Message = dto.Message,
+                TicketId = ticket.Id,
+                Ticket = ticket,
+                SenderId = userId,
+                SenderEmail = userEmail,
+                SenderName = user.FirstName + " " + user.LastName,
+                SenderType = _session.IsAccounter ? "Muhasebeci" : "Kullanýcý",
+                IsInternal = false
+
+            };
+
+            _messageRepo.Insert(ticketMessage);
+            transaction.Commit();
+            response.Entity = ticket.Id;
+            return response;
+        }
+        catch (Exception e)
         {
-            CreatedAt = date,
-            Message = dto.Message,
-            TicketId = ticket.Id,
-            Ticket = ticket,
-            SenderId = userId,
-            SenderEmail = userEmail,
-            SenderName = user.FirstName + " " + user.LastName,
-            SenderType = "_session.IsAccounter ? \"Muhasebeci\" : \"Kullanýcý\""
-
-        };
-
-        _messageRepo.Insert(ticketMessage);
+            transaction.Rollback();
+            return response.ReturnResponseError("Bir þeyler ters gitti! " + e.Message);
+        }
         
-        return new ActionResponse<long> { IsSuccess = true, Entity = ticket.Id };
     }
 
-    public ActionResponse<bool> AddMessage(TicketMessageDto dto, long senderId, string senderName, string senderEmail,
+    public ActionResponse<bool> AddMessage(CreateTicketMessageDto dto, long senderId, string senderName, string senderEmail,
         string senderType)
     {
         var message = new TicketMessage
@@ -110,8 +126,27 @@ public class TicketService : BaseServiceNg<Ticket, TicketDto, CreateTicketDto, U
         return new ActionResponse<TicketDto> { IsSuccess = true, Entity = _mapper.Map<TicketDto>(ticket) /* mapped ticket */ };
     }
 
+
     public PagedAndSortedResponse<TicketDto> GetTickets(PagedAndSortedSearchInput input)
     {
-        throw new NotImplementedException();
+        IQueryable<Ticket> query;
+        if (_session.IsAdmin)
+        {
+            query = _entityRepository.TableNoTracking;
+        }
+        else
+        {
+            query = _entityRepository.TableNoTracking.Where(x => x.CreatedBy == _session.UserId);
+        }
+         
+        var totalCount = query.Count();
+        
+
+        var toReturn = CommonFunctions.GetPagedAndSortedData(query, input.Limit, input.Page, input.SortDirection, input.SortBy);
+        return new PagedAndSortedResponse<TicketDto>
+        {
+            EntityList = _mapper.Map<List<TicketDto>>(toReturn),
+            TotalCount = totalCount
+        };
     }
 }

@@ -13,10 +13,6 @@ namespace TadesApi.Db.Entities
         public string Title { get; set; }
 
         [Required]
-        [MaxLength(2000)]
-        public string Description { get; set; }
-
-        [Required]
         public TicketStatus Status { get; set; }
 
         [Required]

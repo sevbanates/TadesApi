@@ -28,7 +28,7 @@ public class TicketController : BaseController
     }
 
     [HttpPost("message")]
-    public ActionResponse<bool> AddMessage([FromBody] TicketMessageDto dto)
+    public ActionResponse<bool> AddMessage([FromBody] CreateTicketMessageDto dto)
     {
         var response = _ticketService.AddMessage(
             dto,
@@ -52,7 +52,7 @@ public class TicketController : BaseController
     {
         try
         {
-            var response = _ticketService.GetMulti(input);
+            var response = _ticketService.GetTickets(input);
             response.Token = _appSecurity.Token;
 
             return response;

@@ -8,7 +8,6 @@ using TadesApi.Models.ActionsEnum;
 public class CreateTicketDto
 {
     public string Title { get; set; }
-    public string Description { get; set; }
     public TicketPriority Priority { get; set; }
     public TicketCategory Category { get; set; }
     public string Email { get; set; }
@@ -16,6 +15,26 @@ public class CreateTicketDto
 }
 
 public class TicketMessageDto
+{
+    public long TicketId { get; set; }
+
+    public long SenderId { get; set; }
+
+    public string SenderName { get; set; }
+
+    public string SenderEmail { get; set; }
+
+    public string SenderType { get; set; } // "user" | "admin"
+
+    public string Message { get; set; }
+
+    public string? Attachments { get; set; } // Dosya yollarý virgül ile ayrýlmýþ
+
+    public DateTime CreatedAt { get; set; }
+
+    public bool IsInternal { get; set; } // Admin'ler arasý notlar için
+}
+public class CreateTicketMessageDto
 {
     public long TicketId { get; set; }
 
