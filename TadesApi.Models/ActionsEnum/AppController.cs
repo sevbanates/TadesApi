@@ -13,9 +13,13 @@ namespace TadesApi.Models.ActionsEnum
 
         [Display(Name = "Invoice")]
         Invoice = 3,
-        
+
+        [Display(Name = "Ticket")]
+        Ticket = 5,
+
         [Display(Name = "Customer")]
-        Customer = 5,
+        Customer = 5,     
+
 
         //[Display(Name = "ScheduleEvent")]
         //ScheduleEvent = 6, 
