@@ -21,30 +21,56 @@ public class TicketController : BaseController
     }
 
     [HttpPost("create")]
-    public ActionResponse<long> Create([FromBody] CreateTicketDto dto)
+    public ActionResponse<TicketDto> Create([FromBody] CreateTicketDto dto)
     {
-        var response = _ticketService.CreateTicket(dto, _currentUser.UserId, _currentUser.Email);
-        return response;
+        try
+        {
+            var response = _ticketService.CreateTicket(dto, _currentUser.UserId, _currentUser.Email);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            return ErrorResponse(new ActionResponse<TicketDto>(), "Create Error :" + ex.Message);
+        }
+        
     }
 
     [HttpPost("message")]
     public ActionResponse<bool> AddMessage([FromBody] CreateTicketMessageDto dto)
     {
-        var response = _ticketService.AddMessage(
-            dto,
-            _currentUser.UserId,
-            _currentUser.UserName,
-            _currentUser.Email,
-            _currentUser.IsAdmin ? "admin" : "user"
-        );
-        return response;
+        try
+        {
+            var response = _ticketService.AddMessage(
+                dto,
+                _currentUser.UserId,
+                _currentUser.UserName,
+                _currentUser.Email,
+                _currentUser.IsAdmin ? "admin" : "user"
+            );
+            return response;
+        }
+        catch (Exception ex)
+        {
+            return ErrorResponse(new ActionResponse<bool>(), "AddMessage Error :" + ex.Message);
+        }
+       
     }
 
     [HttpPut("status/{ticketId}")]
     public ActionResponse<bool> ChangeStatus(long ticketId, [FromBody] TicketStatus status)
     {
-        var response = _ticketService.ChangeStatus(ticketId, status);
-        return response;
+        try
+        {
+            var response = _ticketService.ChangeStatus(ticketId, status);
+            response.Token = _appSecurity.Token;
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            return ErrorResponse(new ActionResponse<bool>(), "ChangeStatus Error :" + ex.Message);
+        }
+
     }
 
     [HttpGet]

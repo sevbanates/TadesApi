@@ -29,9 +29,9 @@ public class TicketService : BaseServiceNg<Ticket, TicketDto, CreateTicketDto, U
         _dbContext = dbContext;
     }
 
-    public ActionResponse<long> CreateTicket(CreateTicketDto dto, long userId, string userEmail)
+    public ActionResponse<TicketDto> CreateTicket(CreateTicketDto dto, long userId, string userEmail)
     {
-        var response = new ActionResponse<long>();
+        var response = new ActionResponse<TicketDto>();
         using var transaction = _dbContext.Database.BeginTransaction();
         try
         {
@@ -45,7 +45,7 @@ public class TicketService : BaseServiceNg<Ticket, TicketDto, CreateTicketDto, U
                 CreatedBy = userId,
                 CreatedByEmail = userEmail,
                 CreatedAt = date,
-                UpdatedAt = date
+                UpdatedAt = date,
             };
             _entityRepository.Insert(ticket);
 
@@ -59,14 +59,14 @@ public class TicketService : BaseServiceNg<Ticket, TicketDto, CreateTicketDto, U
                 SenderId = userId,
                 SenderEmail = userEmail,
                 SenderName = user.FirstName + " " + user.LastName,
-                SenderType = _session.IsAccounter ? "Muhasebeci" : "Kullanýcý",
+                SenderType = GetSenderType(),
                 IsInternal = false
 
             };
 
             _messageRepo.Insert(ticketMessage);
             transaction.Commit();
-            response.Entity = ticket.Id;
+            response.Entity = _mapper.Map<TicketDto>(ticket);
             return response;
         }
         catch (Exception e)
@@ -75,6 +75,14 @@ public class TicketService : BaseServiceNg<Ticket, TicketDto, CreateTicketDto, U
             return response.ReturnResponseError("Bir þeyler ters gitti! " + e.Message);
         }
         
+    }
+
+    public string GetSenderType()
+    {
+        if (_session.IsAdmin)
+            return "admin";
+        else
+            return "user";
     }
 
     public ActionResponse<bool> AddMessage(CreateTicketMessageDto dto, long senderId, string senderName, string senderEmail,
@@ -117,7 +125,11 @@ public class TicketService : BaseServiceNg<Ticket, TicketDto, CreateTicketDto, U
 
     public ActionResponse<TicketDto> GetTicket(long ticketId, Guid guidId)
     {
+
         var ticket = _entityRepository.TableNoTracking.Include(x=> x.Messages).FirstOrDefault(x => x.Id == ticketId && x.GuidId == guidId);
+        if (!_session.IsAdmin && ticket.CreatedBy != _session.UserId)
+            return new ActionResponse<TicketDto> { IsSuccess = false, ReturnMessage = new List<string> { "Yetkisiz eriþim." } };
+
         if (ticket == null)
             return new ActionResponse<TicketDto> { IsSuccess = false, ReturnMessage = new List<string> { "Ticket bulunamadý." } };
 
