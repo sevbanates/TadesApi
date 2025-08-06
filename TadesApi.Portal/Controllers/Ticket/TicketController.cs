@@ -1,108 +1,110 @@
 using Microsoft.AspNetCore.Mvc;
+using TadesApi.BusinessService.TicketServices.Interfaces;
 using TadesApi.Core;
 using TadesApi.Core.Models.Global;
 using TadesApi.Core.Session;
-using TadesApi.Models.ActionsEnum;
-using TadesApi.Models.ViewModels.Customer;
-using TadesApi.Portal.ActionFilters;
 using TadesApi.Portal.Helpers;
 
-[ApiController]
-[Route("api/tickets")]
-public class TicketController : BaseController
+
+namespace TadesApi.Portal.Controllers.Ticket
 {
-    private readonly ITicketService _ticketService;
-    private readonly ICurrentUser _currentUser;
-
-    public TicketController(ITicketService ticketService, ICurrentUser currentUser)
+    [ApiController]
+    [Route("api/tickets")]
+    public class TicketController : BaseController
     {
-        _ticketService = ticketService;
-        _currentUser = currentUser;
-    }
+        private readonly ITicketService _ticketService;
+        private readonly ICurrentUser _currentUser;
 
-    [HttpPost("create")]
-    public ActionResponse<TicketDto> Create([FromBody] CreateTicketDto dto)
-    {
-        try
+        public TicketController(ITicketService ticketService, ICurrentUser currentUser)
         {
-            var response = _ticketService.CreateTicket(dto, _currentUser.UserId, _currentUser.Email);
-            return response;
-        }
-        catch (Exception ex)
-        {
-            return ErrorResponse(new ActionResponse<TicketDto>(), "Create Error :" + ex.Message);
-        }
-        
-    }
-
-    [HttpPost("message")]
-    public ActionResponse<bool> AddMessage([FromBody] CreateTicketMessageDto dto)
-    {
-        try
-        {
-            var response = _ticketService.AddMessage(
-                dto,
-                _currentUser.UserId,
-                _currentUser.UserName,
-                _currentUser.Email,
-                _currentUser.IsAdmin ? "admin" : "user"
-            );
-            return response;
-        }
-        catch (Exception ex)
-        {
-            return ErrorResponse(new ActionResponse<bool>(), "AddMessage Error :" + ex.Message);
-        }
-       
-    }
-
-    [HttpPut("status/{ticketId}")]
-    public ActionResponse<bool> ChangeStatus(long ticketId, [FromBody] TicketStatus status)
-    {
-        try
-        {
-            var response = _ticketService.ChangeStatus(ticketId, status);
-            response.Token = _appSecurity.Token;
-
-            return response;
-        }
-        catch (Exception ex)
-        {
-            return ErrorResponse(new ActionResponse<bool>(), "ChangeStatus Error :" + ex.Message);
+            _ticketService = ticketService;
+            _currentUser = currentUser;
         }
 
-    }
-
-    [HttpGet]
-    public PagedAndSortedResponse<TicketDto> GetMulti([FromQuery] PagedAndSortedSearchInput input)
-    {
-        try
+        [HttpPost("create")]
+        public ActionResponse<TicketDto> Create([FromBody] CreateTicketDto dto)
         {
-            var response = _ticketService.GetTickets(input);
-            response.Token = _appSecurity.Token;
+            try
+            {
+                var response = _ticketService.CreateTicket(dto, _currentUser.UserId, _currentUser.Email);
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new ActionResponse<TicketDto>(), "Create Error :" + ex.Message);
+            }
 
-            return response;
         }
-        catch (Exception ex)
+
+        [HttpPost("message")]
+        public ActionResponse<bool> AddMessage([FromBody] CreateTicketMessageDto dto)
         {
-            return ErrorResponse(new PagedAndSortedResponse<TicketDto>(), "GetMulti Error :" + ex.Message);
+            try
+            {
+                var response = _ticketService.AddMessage(
+                    dto,
+                    _currentUser.UserId,
+                    _currentUser.UserName,
+                    _currentUser.Email,
+                    _currentUser.IsAdmin ? "admin" : "user"
+                );
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new ActionResponse<bool>(), "AddMessage Error :" + ex.Message);
+            }
+
         }
-    }
+
+        [HttpPut("status/{ticketId}")]
+        public ActionResponse<bool> ChangeStatus(long ticketId, [FromBody] TicketStatus status)
+        {
+            try
+            {
+                var response = _ticketService.ChangeStatus(ticketId, status);
+                response.Token = _appSecurity.Token;
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new ActionResponse<bool>(), "ChangeStatus Error :" + ex.Message);
+            }
+
+        }
+
+        [HttpGet]
+        public PagedAndSortedResponse<TicketDto> GetMulti([FromQuery] PagedAndSortedSearchInput input)
+        {
+            try
+            {
+                var response = _ticketService.GetTickets(input);
+                response.Token = _appSecurity.Token;
+
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new PagedAndSortedResponse<TicketDto>(), "GetMulti Error :" + ex.Message);
+            }
+        }
 
 
-    [HttpGet]
-    [Route("{id}/{guidId}")]
-    public ActionResponse<TicketDto> GetSingle(long id, Guid guidId)
-    {
-        try
+        [HttpGet]
+        [Route("{id}/{guidId}")]
+        public ActionResponse<TicketDto> GetSingle(long id, Guid guidId)
         {
-            var response = _ticketService.GetTicket(id, guidId);
-            response.Token = _appSecurity.Token;
-            return response;
-        }
-        catch (Exception ex)
-        {
-            return ErrorResponse(new ActionResponse<TicketDto>(), "GetSingle :" + ex.Message);
+            try
+            {
+                var response = _ticketService.GetTicket(id, guidId);
+                response.Token = _appSecurity.Token;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new ActionResponse<TicketDto>(), "GetSingle :" + ex.Message);
+            }
         }
     }
 }

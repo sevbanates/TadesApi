@@ -87,5 +87,6 @@ public class TicketDto : BaseModel
     public long? AssignedTo { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public string? SenderName { get; set; }
     public List<TicketMessageDto> Messages { get; set; } = new();
 }

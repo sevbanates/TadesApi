@@ -15,7 +15,7 @@ namespace TadesApi.Models.ActionsEnum
         Invoice = 3,
 
         [Display(Name = "Ticket")]
-        Ticket = 5,
+        Ticket = 4,
 
         [Display(Name = "Customer")]
         Customer = 5,     

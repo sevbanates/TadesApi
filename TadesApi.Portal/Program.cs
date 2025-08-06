@@ -21,6 +21,10 @@ using TadesApi.BusinessService.LibraryServices.Interfaces;
 using TadesApi.BusinessService.LibraryServices.Services;
 using TadesApi.BusinessService.MessageServices.Interfaces;
 using TadesApi.BusinessService.MessageServices.Services;
+using TadesApi.BusinessService.SettingsService.Interfaces;
+using TadesApi.BusinessService.SettingsService.Services;
+using TadesApi.BusinessService.TicketServices.Interfaces;
+using TadesApi.BusinessService.TicketServices.Services;
 using TadesApi.Core;
 using TadesApi.Portal;
 using TadesApi.Portal.ActionFilters;
@@ -126,6 +130,7 @@ builder.Services.AddTransient<IInvoiceService, InvoiceService>();
 builder.Services.AddTransient<ICustomerService, CustomerService>();
 builder.Services.AddTransient<ITicketService, TicketService>();
 builder.Services.AddTransient<ILibraryService, LibraryService>();
+builder.Services.AddTransient<ISettingsService, SettingsService>();
 
 //*** Inquiry Resolvers
 builder.Services.AddTransient<IInquiryService, InquiryService>();
