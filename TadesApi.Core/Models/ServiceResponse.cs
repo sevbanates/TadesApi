@@ -25,7 +25,7 @@ namespace TadesApi.Core
         public bool IsSuccess { get; set; } = true;
         public List<string> ReturnMessage { get; set; } = new();
         public T Entity { get; set; }
-        public List<T> EntityList { get; set; }
+        public List<T> EntityList { get; set; } = new();
     }
 
     public class FunctionResponse<T>

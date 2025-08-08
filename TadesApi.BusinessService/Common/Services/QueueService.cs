@@ -1,4 +1,5 @@
 ﻿using Hangfire;
+using SendWithBrevo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,10 @@ namespace TadesApi.BusinessService.CommonServices.services
             BackgroundJob.Enqueue<IJobService>(x => x.AddLog(entity, message, securityModel));
         }
 
+        public void SendAccounterRequestMail<T>(T entity, string subject, string messageText, string toEmail, string toName, string actionUrl, string senderName)
+        {
+            BackgroundJob.Enqueue<IJobService>(x => x.SendAccounterRequestMail(entity, subject, messageText, toEmail, toName, actionUrl, senderName));
+        }
         
         //public void CheckImzager()
         //{

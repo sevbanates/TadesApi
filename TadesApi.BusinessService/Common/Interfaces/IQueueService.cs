@@ -1,4 +1,4 @@
-﻿
+﻿using SendWithBrevo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,5 +13,6 @@ namespace TadesApi.BusinessService.CommonServices.interfaces
         void AddLog<T>(T entity, string message, SecurityModel securityModel);
         //void CheckImzager();
         //void CalculateDelaerOrder();
+        void SendAccounterRequestMail<T>(T entity, string subject, string messageText, string toEmail, string toName, string actionUrl, string senderName);
     }
 }

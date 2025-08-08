@@ -140,7 +140,7 @@ public class MessageService : IMessageService
             { EmailParams.FullName, sender.FirstName + " " + sender.LastName }
         };
         const string subject = "New Message Notification";
-        _emailHelper.SendEmail(subject, recipients, parameters, EmailTemplate.NewMessageNotification);
+        //_emailHelper.SendEmail(subject, recipients, parameters, EmailTemplate.NewMessageNotification);
     }
 
     public ActionResponse<MessageDto> DeleteMessageForSender(long messageId, Guid guidId)

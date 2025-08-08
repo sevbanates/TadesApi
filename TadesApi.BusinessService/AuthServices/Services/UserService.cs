@@ -100,7 +100,7 @@ public class UserService : BaseServiceNg<User, UserBasicDto, CreateUserDto, Upda
             { EmailParams.UserName, input.UserName }
         };
         const string subject = "Your account has been created!";
-        _emailHelper.SendEmail(subject, recipients, parameters, EmailTemplate.AccountCreated);
+        //_emailHelper.SendEmail(subject, recipients, parameters, EmailTemplate.AccountCreated);
         
         return new ActionResponse<UserBasicDto> { Entity = _mapper.Map<UserBasicDto>(toCreate) };
     }

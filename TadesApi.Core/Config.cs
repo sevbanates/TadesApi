@@ -16,6 +16,8 @@ public class AppConfigs
     public string RedisConnectionString { get; set; }
     public string PrivateKey { get; set; }
     public string AppCode { get; set; }
+    // Public-facing base URL of the API, used in emails to build action links
+    public string PublicBaseUrl { get; set; }
 }
 
 public class FileSettings
@@ -29,6 +31,7 @@ public class FileSettings
     public string SignedContracts { get; set; }
     public string SignedSupplierOrderItemContracts { get; set; }
     public string TemplatePath { get; set; }
+    public string BaseUrl { get; set; }
 
     public string ResourceExcelFolder => $"{Environment.CurrentDirectory}\\Resource\\ExcellFile";
     public string ResourceContractFile => $"{Environment.CurrentDirectory}\\Resource\\Template\\contract.pdf";

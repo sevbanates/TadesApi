@@ -87,7 +87,7 @@ public class LoginService : ILoginService
             {EmailParams.Description, confirmationCode}
         };
         const string subject = "Login Confirmation Code";
-        _emailHelper.SendEmail(subject, recipients, parameters, EmailTemplate.LoginConfirm);
+        //_emailHelper.SendEmail(subject, recipients, parameters, EmailTemplate.LoginConfirm);
     }
 
     public ActionResponse<UserViewModel> Login(LoginModel input)
@@ -181,7 +181,7 @@ public class LoginService : ILoginService
             {EmailParams.FormUrl, "https://portal.globalpsychsolutions.com/reset-password/" + token},
         };
         const string subject = "Password Reset Request";
-        _emailHelper.SendEmail(subject, recipients, parameters, EmailTemplate.ForgotPassword);
+        //_emailHelper.SendEmail(subject, recipients, parameters, EmailTemplate.ForgotPassword);
     }
 
     public ActionResponse<bool> ResetPassword(ResetPasswordModel input)

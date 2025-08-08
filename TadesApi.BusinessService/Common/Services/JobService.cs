@@ -2,6 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using SendWithBrevo;
+using TadesApi.BusinessService.Common.Interfaces;
 using TadesApi.BusinessService.CommonServices.interfaces;
 using TadesApi.Db.Entities;
 using TadesApi.Core.Security;
@@ -13,10 +15,11 @@ namespace TadesApi.BusinessService.CommonServices.services
     public class JobService : IJobService
     {
       private readonly IRepository<CmmLog> _logRepository;
-        
-        public JobService(IRepository<CmmLog> logRepository)
+      private readonly IEmailHelper _emailHelper;
+        public JobService(IRepository<CmmLog> logRepository, IEmailHelper emailHelper)
         {
             _logRepository = logRepository;
+            _emailHelper = emailHelper;
         }
         
         public void AddLog<T>(T entity, string message, SecurityModel securityModel)
@@ -41,6 +44,14 @@ namespace TadesApi.BusinessService.CommonServices.services
             };
 
             _logRepository.Insert(cmmLog);
+        }
+
+     
+
+        public void SendAccounterRequestMail<T>(T entity, string subject, string messageText, string toEmail, string toName, string actionUrl, string senderName)
+        {
+            _emailHelper.SendAccounterRequestMail(subject, messageText, toEmail, toName, actionUrl, senderName);
+            AddLog(entity, subject, new SecurityModel());
         }
 
         //public JobResponse UpdateAllActions()

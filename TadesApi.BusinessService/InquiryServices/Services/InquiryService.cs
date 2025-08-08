@@ -85,7 +85,7 @@ public class InquiryService : BaseServiceNg<Inquiry, InquiryDto, CreateInquiryDt
             { EmailParams.Body, input.Message }
         };
         const string subject = "New Contact Form Submission";
-        _emailHelper.SendEmail(subject, recipients, parameters, EmailTemplate.CreateInquiry);
+        //_emailHelper.SendEmail(subject, recipients, parameters, EmailTemplate.CreateInquiry);
         
         return new ActionResponse<InquiryDto> { Entity = _mapper.Map<InquiryDto>(inquiry) };
     }
@@ -113,6 +113,6 @@ public class InquiryService : BaseServiceNg<Inquiry, InquiryDto, CreateInquiryDt
             { EmailParams.Body, input.Message }
         };
         const string subject = "Thank you for your interest";
-        _emailHelper.SendEmail(subject, recipients, parameters, EmailTemplate.InquiryReply);
+        //_emailHelper.SendEmail(subject, recipients, parameters, EmailTemplate.InquiryReply);
     }
 }
