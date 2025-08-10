@@ -9,7 +9,8 @@ namespace TadesApi.BusinessService.CommonServices.interfaces
     public interface IJobService
     {
         void AddLog<T>(T entity, string message, SecurityModel securityModel);
-        void SendAccounterRequestMail<T>(T entity, string subject, string messageText, string toEmail, string toName, string actionUrl, string senderName);
+        void SendAccounterRequestMail<T>(T entity, string subject, string messageText, string toEmail, string toName, string actionUrl, string senderName);  
+        void SendTicketCreatedMail(string toName, string actionUrl, string senderName);
 
         //JobResponse UpdateAllActions();
         //JobResponse CheckPurchaseOrderItemExpire();

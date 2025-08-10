@@ -25,15 +25,17 @@ public class UserService : BaseServiceNg<User, UserBasicDto, CreateUserDto, Upda
 {
     private readonly IEmailHelper _emailHelper;
     private readonly IRepository<UserRequest> _userRequestRepo;
+    private readonly IRepository<AccounterUsers> _accUsersRepository;
     public UserService(
         IRepository<User> entityRepository,
         ILocalizationService locManager,
         IMapper mapper,
         IEmailHelper emailHelper,
-        ICurrentUser session, IRepository<UserRequest> userRequestRepo) : base(entityRepository, locManager, mapper, session)
+        ICurrentUser session, IRepository<UserRequest> userRequestRepo, IRepository<AccounterUsers> accUsersRepository) : base(entityRepository, locManager, mapper, session)
     {
         _emailHelper = emailHelper;
         _userRequestRepo = userRequestRepo;
+        _accUsersRepository = accUsersRepository;
     }
 
 
@@ -247,5 +249,18 @@ public class UserService : BaseServiceNg<User, UserBasicDto, CreateUserDto, Upda
     public ActionResponse<bool> GetMyAllRequests()
     {
         throw new NotImplementedException();
+    }
+
+    public ActionResponse<AccounterUserDto> GetAccounterUsers()
+    {
+        var userIds = _accUsersRepository.TableNoTracking.Where(x => x.AccounterUserId == _session.UserId)
+            .Select(x => x.TargetUserUserId).ToList();
+        var users = _entityRepository.TableNoTracking.Where(x => userIds.Contains(x.Id)).Select(x =>
+            new AccounterUserDto
+            {
+                FullName = x.FirstName + " " + x.LastName,
+                UserId = x.Id
+            }).ToList();
+        return new ActionResponse<AccounterUserDto> { EntityList = users };
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TadesApi.BusinessService._base;
 using TadesApi.BusinessService.AppServices;
+using TadesApi.BusinessService.CommonServices.interfaces;
 using TadesApi.BusinessService.TicketServices.Interfaces;
 using TadesApi.Core;
 using TadesApi.Core.Models.Global;
@@ -20,15 +21,17 @@ namespace TadesApi.BusinessService.TicketServices.Services
     {
         private readonly IRepository<TicketMessage> _messageRepo;
         private readonly IRepository<User> _userRepo;
+        private readonly IQueueService _queueService;
         protected readonly BtcDbContext _dbContext;
 
         public TicketService(IRepository<Ticket> entityRepository, ILocalizationService locManager, IMapper mapper,
             ICurrentUser session, IRepository<TicketMessage> messageRepo, IRepository<User> userRepo,
-            BtcDbContext dbContext) : base(entityRepository, locManager, mapper, session)
+            BtcDbContext dbContext, IQueueService queueService) : base(entityRepository, locManager, mapper, session)
         {
             _messageRepo = messageRepo;
             _userRepo = userRepo;
             _dbContext = dbContext;
+            _queueService = queueService;
         }
 
         public ActionResponse<TicketDto> CreateTicket(CreateTicketDto dto, long userId, string userEmail)
@@ -69,6 +72,7 @@ namespace TadesApi.BusinessService.TicketServices.Services
                 _messageRepo.Insert(ticketMessage);
                 transaction.Commit();
                 response.Entity = _mapper.Map<TicketDto>(ticket);
+                _queueService.SendTicketCreatedMail("sadas", "asdasd", "asdasd");
                 return response;
             }
             catch (Exception e)

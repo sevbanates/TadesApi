@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TadesApi.BusinessService.CommonServices.interfaces;
 using TadesApi.Core.Security;
+using static Amazon.S3.Util.S3EventNotification;
 
 namespace TadesApi.BusinessService.CommonServices.services
 {
@@ -27,7 +28,12 @@ namespace TadesApi.BusinessService.CommonServices.services
         {
             BackgroundJob.Enqueue<IJobService>(x => x.SendAccounterRequestMail(entity, subject, messageText, toEmail, toName, actionUrl, senderName));
         }
-        
+
+        public void SendTicketCreatedMail(string toName, string actionUrl, string senderName)
+        {
+            BackgroundJob.Enqueue<IJobService>(x => x.SendTicketCreatedMail(toName, actionUrl, senderName));
+        }
+
         //public void CheckImzager()
         //{
         //    BackgroundJob.Enqueue<IJobService>(x => x.CheckImzagerApprove());

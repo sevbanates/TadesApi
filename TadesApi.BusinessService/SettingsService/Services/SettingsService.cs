@@ -30,12 +30,13 @@ namespace TadesApi.BusinessService.SettingsService.Services
     {
         private readonly IRepository<TicketMessage> _messageRepo;
         private readonly IRepository<AccounterRequest> _entityRepository;
+        private readonly IRepository<AccounterUsers> _accUsersRepository;
         private readonly IRepository<User> _userRepo;
         private readonly IQueueService _queueService;
         private readonly IOptions<FileSettings> _fileSetting;
         protected readonly BtcDbContext _dbContext;
         protected readonly ICurrentUser _session;
-        public SettingsService(IRepository<Ticket> entityRepository, ILocalizationService locManager, IMapper mapper, ICurrentUser session, IRepository<TicketMessage> messageRepo, IRepository<User> userRepo, BtcDbContext dbContext, IRepository<AccounterRequest> entityRepository1, IQueueService queueService, IOptions<FileSettings> fileSetting)
+        public SettingsService(IRepository<Ticket> entityRepository, ILocalizationService locManager, IMapper mapper, ICurrentUser session, IRepository<TicketMessage> messageRepo, IRepository<User> userRepo, BtcDbContext dbContext, IRepository<AccounterRequest> entityRepository1, IQueueService queueService, IOptions<FileSettings> fileSetting, IRepository<AccounterUsers> accUsersRepository)
         {
             _session = session;
             _messageRepo = messageRepo;
@@ -44,6 +45,7 @@ namespace TadesApi.BusinessService.SettingsService.Services
             _entityRepository = entityRepository1;
             _queueService = queueService;
             _fileSetting = fileSetting;
+            _accUsersRepository = accUsersRepository;
         }
 
 
@@ -153,7 +155,13 @@ namespace TadesApi.BusinessService.SettingsService.Services
                request.ModDate = DateTime.UtcNow;
                _entityRepository.Update(request);
 
-               dto.ModDate = request.ModDate;
+               AccounterUsers acUser = new AccounterUsers
+               {
+                   AccounterUserId = request.TargetId,
+                   TargetUserUserId = request.SenderId,
+               };
+               _accUsersRepository.Insert(acUser);
+                dto.ModDate = request.ModDate;
                response.Entity = dto;
                return response;
            }

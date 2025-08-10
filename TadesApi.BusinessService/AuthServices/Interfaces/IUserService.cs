@@ -23,6 +23,7 @@ public interface IUserService : IBaseServiceNg<CreateUserDto, UpdateUserDto, Use
     ActionResponse<bool> SendRequest(UserRequestCreateDto dto);
     ActionResponse<bool> HandleRequest(UserRequestActionDto dto);
     ActionResponse<bool> GetMyAllRequests();
+    ActionResponse<AccounterUserDto> GetAccounterUsers();
 
     //ActionResponse<bool> DeleteUser(long userId, Guid guidId);
 }

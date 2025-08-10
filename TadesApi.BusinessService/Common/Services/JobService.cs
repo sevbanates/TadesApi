@@ -1,14 +1,15 @@
 ﻿
+using SendWithBrevo;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using SendWithBrevo;
 using TadesApi.BusinessService.Common.Interfaces;
 using TadesApi.BusinessService.CommonServices.interfaces;
-using TadesApi.Db.Entities;
 using TadesApi.Core.Security;
 using TadesApi.CoreHelper;
+using TadesApi.Db.Entities;
 using TadesApi.Db.Infrastructure;
+using static Amazon.S3.Util.S3EventNotification;
 
 namespace TadesApi.BusinessService.CommonServices.services
 {
@@ -52,6 +53,12 @@ namespace TadesApi.BusinessService.CommonServices.services
         {
             _emailHelper.SendAccounterRequestMail(subject, messageText, toEmail, toName, actionUrl, senderName);
             AddLog(entity, subject, new SecurityModel());
+        }
+
+        public void SendTicketCreatedMail(string toName, string actionUrl, string senderName)
+        {
+            _emailHelper.SendTicketCreatedMail(toName, actionUrl, senderName);
+            //AddLog(SecurityModel());
         }
 
         //public JobResponse UpdateAllActions()

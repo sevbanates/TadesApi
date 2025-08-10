@@ -5,6 +5,7 @@ namespace TadesApi.Db.Entities;
 
 public class AccounterUsers : BaseEntity, ISoftDeletable
 {
-    public long UserId { get; set; }
+    public long AccounterUserId { get; set; }
+    public long TargetUserUserId { get; set; }
     public bool IsDeleted { get; set; }
 }

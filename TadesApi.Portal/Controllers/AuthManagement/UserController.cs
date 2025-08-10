@@ -220,5 +220,22 @@ public class UserController : BaseController
         {
             return ErrorResponse(new ActionResponse<bool>(), "HandleRequest :" + ex.Message);
         }
+    }   
+    
+    [Route("get-accounter-users")]
+    [HttpGet]
+    public ActionResponse<AccounterUserDto> GetAccounterUsers()
+    {
+        try
+        {
+             // requesterId'i oturumdan veya token'dan almalısın
+            // //long requesterId = /* oturumdan al */;
+            var response = _service.GetAccounterUsers();
+            return response;
+        }
+        catch (Exception ex)
+        {
+            return ErrorResponse(new ActionResponse<AccounterUserDto>(), "GetAccounterUsers :" + ex.Message);
+        }
     }
 }

@@ -99,12 +99,57 @@ public class EmailHelper : IEmailHelper
 
             var message = new MailMessage
             {
-                From = new MailAddress("betechtest42@gmail.com", "Tades Yazılım"),
+                From = new MailAddress("betechtest42@gmail.com", "Mukellef.io"),
                 Subject = subject,
                 Body = bodyToSend,
                 IsBodyHtml = true
             };
             message.To.Add(toEmail);
+            smtpClient.SendMailAsync(message);
+            return response;
+        }
+        catch
+        {
+            return response;
+        }
+    }
+
+    public ActionResponse<bool> SendTicketCreatedMail(string toName, string actionUrl, string senderName)
+    {
+        var response = new ActionResponse<bool>();
+        try
+        {
+            var smtpClient = new SmtpClient("smtp.gmail.com")
+            {
+                Port = 587,
+                Credentials = new NetworkCredential("betechtest42@gmail.com", "hqxwxvdbpgbjqrva"),
+                EnableSsl = true,
+            };
+
+            string bodyToSend =  string.Empty;
+            try
+            {
+                var templatePath = Path.Combine(AppContext.BaseDirectory, "Resource", "Template", "SendTicketCreatedMail.html");
+                if (File.Exists(templatePath))
+                {
+                    var template = File.ReadAllText(templatePath);
+                    bodyToSend = template;
+                    //.Replace("{{name}}", toName ?? string.Empty)
+                    //.Replace("{{customMessage}}", senderName ?? string.Empty)
+                    //.Replace("{{actionUrl}}", actionUrl ?? string.Empty)
+                    //.Replace("{{year}}", DateTime.UtcNow.Year.ToString());
+                }
+            }
+            catch { }
+
+            var message = new MailMessage
+            {
+                From = new MailAddress("betechtest42@gmail.com", "Mukellef.io"),
+                Subject = "subject",
+                Body = bodyToSend,
+                IsBodyHtml = true
+            };
+            message.To.Add("sevban_ates42@hotmail.com");
             smtpClient.SendMailAsync(message);
             return response;
         }
