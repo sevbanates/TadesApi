@@ -9,6 +9,7 @@ using TadesApi.Core.Security;
 using TadesApi.CoreHelper;
 using TadesApi.Db.Entities;
 using TadesApi.Db.Infrastructure;
+using TadesApi.Models.CustomModels;
 using static Amazon.S3.Util.S3EventNotification;
 
 namespace TadesApi.BusinessService.CommonServices.services
@@ -55,9 +56,9 @@ namespace TadesApi.BusinessService.CommonServices.services
             AddLog(entity, subject, new SecurityModel());
         }
 
-        public void SendTicketCreatedMail(string toName, string actionUrl, string senderName)
+        public void SendTicketCreatedMail(CreatedTicketMailModel model)
         {
-            _emailHelper.SendTicketCreatedMail(toName, actionUrl, senderName);
+            _emailHelper.SendTicketCreatedMail(model);
             //AddLog(SecurityModel());
         }
 

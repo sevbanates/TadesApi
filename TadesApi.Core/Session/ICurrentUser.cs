@@ -16,6 +16,7 @@ public interface ICurrentUser
     //public bool IsClient { get; set; }        
     public int RoleId { get; set; }
     public int LanguageId { get; set; }
+    public long? SelectedUserId { get; set; } // Accounter'ın seçtiği kullanıcı ID'si
     //public bool IsCustomer { get; }
     //public bool IsManager { get; }
     //public bool IsSupplier { get; }

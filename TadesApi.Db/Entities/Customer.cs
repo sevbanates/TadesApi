@@ -61,6 +61,9 @@ namespace TadesApi.Db.Entities
         [MaxLength(300)]
         public string? AddressDescription { get; set; }
 
-        // İlişkiler
+        [Required]
+        public long UserId { get; set; } // Customer'ın sahibi User
+
+        public virtual User User { get; set; } // Navigation property
     }
 }

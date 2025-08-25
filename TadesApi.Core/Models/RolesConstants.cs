@@ -10,7 +10,8 @@ namespace TadesApi.Core.Models
     public static class RolesConstants
     {
         public const string _Admin = "Admin";
-        public const string _SuperUser = "SuperUser";
+        public const string _User = "User";
+        public const string _Accounter = "Accounter";
     }
 
     public static class RolesHelper
@@ -18,7 +19,8 @@ namespace TadesApi.Core.Models
         public static class RolesConstantsInt
         {
             public const int _Admin = 100;
-            public const int _SuperUser = 101;
+            public const int _User = 101;
+            public const int _Accounter = 102;
         }
         public static int GetRoleId(string role)
         {
@@ -26,8 +28,10 @@ namespace TadesApi.Core.Models
             {
                 case RolesConstants._Admin:
                     return 100;
-                case RolesConstants._SuperUser:
-                    return 101;
+                case RolesConstants._User:
+                    return 101; 
+                case RolesConstants._Accounter:
+                    return 102;
      
                 default:
                     throw new Exception("Role Not Found");

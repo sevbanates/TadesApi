@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TadesApi.Db.Entities.AppDbContext;
 
@@ -11,9 +12,11 @@ using TadesApi.Db.Entities.AppDbContext;
 namespace TadesApi.Db.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250810225838_UserPreferences")]
+    partial class UserPreferences
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -255,17 +258,12 @@ namespace TadesApi.Db.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint");
-
                     b.Property<string>("VknTckn")
                         .IsRequired()
                         .HasMaxLength(11)
                         .HasColumnType("nvarchar(11)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Customers");
                 });
@@ -850,6 +848,9 @@ namespace TadesApi.Db.Migrations
                     b.Property<bool?>("IsFirstLogin")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsPrimaryForClient")
+                        .HasColumnType("bit");
+
                     b.Property<string>("LastIpAddress")
                         .HasColumnType("nvarchar(max)");
 
@@ -1004,17 +1005,6 @@ namespace TadesApi.Db.Migrations
                     b.ToTable("VmenuAction");
                 });
 
-            modelBuilder.Entity("TadesApi.Db.Entities.Customer", b =>
-                {
-                    b.HasOne("TadesApi.Db.Entities.User", "User")
-                        .WithMany("Customers")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("TadesApi.Db.Entities.InvoiceItem", b =>
                 {
                     b.HasOne("TadesApi.Db.Entities.Invoice", "Invoice")
@@ -1122,8 +1112,6 @@ namespace TadesApi.Db.Migrations
             modelBuilder.Entity("TadesApi.Db.Entities.User", b =>
                 {
                     b.Navigation("Clients");
-
-                    b.Navigation("Customers");
                 });
 #pragma warning restore 612, 618
         }

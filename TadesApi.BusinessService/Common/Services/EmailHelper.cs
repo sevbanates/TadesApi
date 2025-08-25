@@ -7,6 +7,9 @@ using System.Net;
 using System.Net.Mail;
 using TadesApi.BusinessService.Common.Interfaces;
 using TadesApi.Core;
+using TadesApi.Core.Extensions;
+using TadesApi.CoreHelper;
+using TadesApi.Models.CustomModels;
 
 namespace TadesApi.BusinessService.Common.Services;
 
@@ -114,8 +117,8 @@ public class EmailHelper : IEmailHelper
         }
     }
 
-    public ActionResponse<bool> SendTicketCreatedMail(string toName, string actionUrl, string senderName)
-    {
+    public ActionResponse<bool> SendTicketCreatedMail(CreatedTicketMailModel model)
+    {   
         var response = new ActionResponse<bool>();
         try
         {
@@ -129,10 +132,18 @@ public class EmailHelper : IEmailHelper
             string bodyToSend =  string.Empty;
             try
             {
-                var templatePath = Path.Combine(AppContext.BaseDirectory, "Resource", "Template", "SendTicketCreatedMail.html");
+                var templatePath = Path.Combine(AppContext.BaseDirectory, "Resource", "Template", "SendTicketCreatedMailToAdmins.html");
                 if (File.Exists(templatePath))
                 {
-                    var template = File.ReadAllText(templatePath);
+                    var template = File.ReadAllText(templatePath)
+                        .Replace("{{TicketId}}", model.TicketId.ToString())
+                        .Replace("{{Category}}", EnumExtensions.GetDisplayName(model.TicketCategory))
+                        .Replace("{{Priority}}", EnumExtensions.GetDisplayName(model.TicketPriority))
+                        .Replace("{{CustomerName}}", model.SenderName)
+                        .Replace("{{Status}}", EnumExtensions.GetDisplayName(model.TicketStatus))
+                        .Replace("{{CreatedAt}}", model.CreatedDate.ToString(DateFormatConst.dd_MM_yyyy_HH_mm_ss))
+                        .Replace("{{Message}}", model.TicketMessage)
+                        .Replace("{{TicketUrl}}", model.TicketUrl);
                     bodyToSend = template;
                     //.Replace("{{name}}", toName ?? string.Empty)
                     //.Replace("{{customMessage}}", senderName ?? string.Empty)
@@ -149,7 +160,8 @@ public class EmailHelper : IEmailHelper
                 Body = bodyToSend,
                 IsBodyHtml = true
             };
-            message.To.Add("sevban_ates42@hotmail.com");
+            model.Recievers.ForEach(x=> message.To.Add(x));
+            //message.To.Add(model.Recievers);
             smtpClient.SendMailAsync(message);
             return response;
         }

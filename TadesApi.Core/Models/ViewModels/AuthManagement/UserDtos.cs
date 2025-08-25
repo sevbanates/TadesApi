@@ -24,6 +24,7 @@ public class UserBasicDto
     {
         100 => "Admin",
         101 => "User",
+        102 => "Accounter",
         _ => "Unknown"
     };
 

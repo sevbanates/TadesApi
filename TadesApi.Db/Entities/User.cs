@@ -39,7 +39,6 @@ namespace TadesApi.Db.Entities
         
         //public long? ClientId { get; set; }
         
-        public bool IsPrimaryForClient { get; set; }
         
         public virtual SysRole Role { get; set; }
 
@@ -49,5 +48,6 @@ namespace TadesApi.Db.Entities
         public long? AccounterId { get; set; }
         public virtual User? Accounter { get; set; }
         public virtual ICollection<User> Clients { get; set; } = new List<User>();
+        public virtual ICollection<Customer> Customers { get; set; } = new List<Customer>();
     }
 }

@@ -14,6 +14,7 @@ namespace TadesApi.Models.ViewModels.Customer
         public Guid GuidId { get; set; }
         [Required] [MaxLength(200)] public string Name { get; set; } = null!;
         [Required] [MaxLength(200)] public string Surname { get; set; } = null!;
+        public long UserId { get; set; } // Customer'ın sahibi User
 
         [Required] [MaxLength(11)] public string VknTckn { get; set; } = null!;
 
@@ -50,6 +51,7 @@ namespace TadesApi.Models.ViewModels.Customer
         [MaxLength(10)] public string? PostalCode { get; set; }
 
         [MaxLength(300)] public string? AddressDescription { get; set; }
+
     }
 
     public class CustomerCreateDto
@@ -57,6 +59,7 @@ namespace TadesApi.Models.ViewModels.Customer
         [Required][MaxLength(200)] public string Name { get; set; } = null!;
         [Required][MaxLength(200)] public string Surname { get; set; } = null!;
         [Required] [MaxLength(11)] public string VknTckn { get; set; } = null!;
+        public long UserId { get; set; } // Customer'ın sahibi User
 
         public string? Title { get; set; }
 

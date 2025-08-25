@@ -3,6 +3,7 @@ using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using TadesApi.Db.Entities.AppDbContext;
 using TadesApi.BusinessService.AppServices;
+using TadesApi.BusinessService.AppServices.Interfaces;
 using TadesApi.BusinessService.CommonServices.interfaces;
 using TadesApi.BusinessService.CommonServices.services;
 using TadesApi.Core;
@@ -95,6 +96,7 @@ public static class WebApplicationBuilderExtension
         applicationBuilder.Services.AddTransient<ILocalizationService, LocalizationService>();
         applicationBuilder.Services.AddTransient<IQueueService, QueueService>();
         applicationBuilder.Services.AddTransient<IJobService, JobService>();
+        applicationBuilder.Services.AddTransient<IUserPreferenceService, UserPreferenceService>();
 
         applicationBuilder.Services.AddSwaggerGen(c =>
         {

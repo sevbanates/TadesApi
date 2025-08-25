@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TadesApi.Core.Security;
+using TadesApi.Models.CustomModels;
 
 namespace TadesApi.BusinessService.CommonServices.interfaces
 {
@@ -14,6 +15,6 @@ namespace TadesApi.BusinessService.CommonServices.interfaces
         //void CheckImzager();
         //void CalculateDelaerOrder();
         void SendAccounterRequestMail<T>(T entity, string subject, string messageText, string toEmail, string toName, string actionUrl, string senderName);
-        void SendTicketCreatedMail(string toName, string actionUrl, string senderName);
+        void SendTicketCreatedMail(CreatedTicketMailModel model);
     }
 }

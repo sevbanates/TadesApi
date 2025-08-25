@@ -14,6 +14,7 @@ namespace TadesApi.BusinessService.CustomerServices.Interfaces
     public interface ICustomerService : IBaseServiceNg<CustomerCreateDto, CustomerUpdateDto, CustomerDto, PagedAndSortedInput>
     {
         ActionResponse<bool> CreateCustomer(CustomerCreateDto model);
+        //PagedAndSortedResponse<CustomerDto> GetCustomersByAccounter(CustomerCreateDto model);
         ActionResponse<bool> UpdateCustomer(int id, CustomerUpdateDto model);
     }
 }

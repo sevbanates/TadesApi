@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Newtonsoft.Json;
 using System.Security.Claims;
 using TadesApi.BusinessService.AppServices;
+using TadesApi.BusinessService.AppServices.Interfaces;
 using TadesApi.Core;
 using TadesApi.Core.Security;
 using TadesApi.CoreHelper;
@@ -14,9 +15,12 @@ namespace TadesApi.Portal.ActionFilters
     public class SecurityFilter : IAsyncActionFilter
     {
         private ISecurityService _securityService;
-        public SecurityFilter(ISecurityService securityService)
+        private IUserPreferenceService _userPreferenceService;
+        
+        public SecurityFilter(ISecurityService securityService, IUserPreferenceService userPreferenceService)
         {
             _securityService = securityService;
+            _userPreferenceService = userPreferenceService;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
@@ -114,6 +118,19 @@ namespace TadesApi.Portal.ActionFilters
 
 
                 context.HttpContext.Items["SecurityModel"] = securityModel;
+
+                // User preferences'ları initialize et (accounter için)
+                try
+                {
+                    if (roleId == 102) // Accounter role ID
+                    {
+                        await Task.Run(() => _userPreferenceService.InitializeSelectedUserFromPreferences());
+                    }
+                }
+                catch
+                {
+                    // User preferences yüklenememesi critical değil, devam et
+                }
 
                 //*** todo kaldırmayın
 

@@ -42,6 +42,12 @@ namespace TadesApi.Core.Session
         //public bool IsClient { get => SecurityModel.RoleId == 104; set { } }
         public int RoleId { get => SecurityModel.RoleId; set { } }
         public int LanguageId { get => SecurityModel.LanguageId; set { } }
+        
+        public long? SelectedUserId 
+        { 
+            get => Current?.Items["SelectedUserId"] as long?; 
+            set => Current?.Items.TryAdd("SelectedUserId", value);
+        }
 
         public DateTime Created { get; set; }
         //public bool IsCustomer { get => SecurityModel.RoleId == 104; set { } }

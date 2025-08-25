@@ -8,12 +8,14 @@ using TadesApi.BusinessService.AppServices;
 using TadesApi.BusinessService.CommonServices.interfaces;
 using TadesApi.BusinessService.TicketServices.Interfaces;
 using TadesApi.Core;
+using TadesApi.Core.Models;
 using TadesApi.Core.Models.Global;
 using TadesApi.Core.Session;
 using TadesApi.CoreHelper;
 using TadesApi.Db;
 using TadesApi.Db.Entities;
 using TadesApi.Db.Infrastructure;
+using TadesApi.Models.CustomModels;
 
 namespace TadesApi.BusinessService.TicketServices.Services
 {
@@ -70,9 +72,23 @@ namespace TadesApi.BusinessService.TicketServices.Services
                 };
 
                 _messageRepo.Insert(ticketMessage);
-                transaction.Commit();
                 response.Entity = _mapper.Map<TicketDto>(ticket);
-                _queueService.SendTicketCreatedMail("sadas", "asdasd", "asdasd");
+                var adminEmailList= _userRepo.TableNoTracking.Where(x => x.RoleId == RolesHelper.RolesConstantsInt._Admin)
+                    .Select(x=> x.Email).ToList();
+                CreatedTicketMailModel model = new CreatedTicketMailModel
+                {
+                    TicketId = ticket.Id,
+                    SenderName = user.FirstName + " " + user.LastName,
+                    Recievers = adminEmailList,
+                    TicketMessage = dto.Message,
+                    TicketUrl = $"http://localhost:4200/tickets/{ticket.Id}/{ticket.GuidId}",
+                    TicketStatus = ticket.Status,
+                    TicketPriority = ticket.Priority,
+                    TicketCategory = ticket.Category,
+                    CreatedDate = date
+                };
+                _queueService.SendTicketCreatedMail(model);
+                transaction.Commit();
                 return response;
             }
             catch (Exception e)
