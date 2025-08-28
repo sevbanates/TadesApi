@@ -75,7 +75,7 @@ namespace TadesApi.Portal.Controllers.Ticket
         }
 
         [HttpGet]
-        public PagedAndSortedResponse<TicketDto> GetMulti([FromQuery] PagedAndSortedSearchInput input)
+        public PagedAndSortedResponse<TicketDto> GetMulti([FromQuery] TicketSearchInput input)
         {
             try
             {

@@ -90,3 +90,12 @@ public class TicketDto : BaseModel
     public string? SenderName { get; set; }
     public List<TicketMessageDto> Messages { get; set; } = new();
 }
+
+public class TicketSearchInput : PagedAndSortedSearchInput
+{
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+    public TicketStatus? TicketStatus { get; set; }
+    public TicketPriority? TicketPriority { get; set; }
+    public TicketCategory? TicketCategory { get; set; }
+}

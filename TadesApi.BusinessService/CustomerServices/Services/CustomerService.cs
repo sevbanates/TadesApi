@@ -41,6 +41,39 @@ namespace TadesApi.BusinessService.CustomerServices.Services
             _validationService = new CustomerValidationService(entityRepository);
         }
 
+        public PagedAndSortedResponse<CustomerDto> GetCustomers(PagedAndSortedSearchInput input)
+        {
+            IQueryable<Customer> query;
+            if (_session.IsAdmin)
+            {
+                query = _entityRepository.TableNoTracking;
+            }
+            else if (_session.IsAccounter)
+            {
+                query = _entityRepository.TableNoTracking.Where(x => x.UserId == _session.SelectedUserId);
+            }
+            else
+            {
+                query = _entityRepository.TableNoTracking.Where(x => x.UserId == _session.UserId);
+            }
+
+            var totalCount = query.Count();
+
+
+            var toReturn =
+                CommonFunctions.GetPagedAndSortedData(query, input.Limit, input.Page, input.SortDirection,
+                    input.SortBy);
+
+            var mappeDtos = _mapper.Map<List<CustomerDto>>(toReturn);
+           
+
+            return new PagedAndSortedResponse<CustomerDto>
+            {
+                EntityList = mappeDtos,
+                TotalCount = totalCount
+            };
+        }
+
         public ActionResponse<bool> CreateCustomer(CustomerCreateDto model)
         {
             var validation = _validationService.ValidateCreate(model);

@@ -11,3 +11,4 @@ namespace TadesApi.BusinessService.AppServices.Interfaces
         ActionResponse<bool> InitializeSelectedUserFromPreferences();
     }
 }
+

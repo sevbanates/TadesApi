@@ -15,3 +15,4 @@ public class UserPreferences : BaseEntity, ISoftDeletable
     public virtual User User { get; set; }
     public virtual User? SelectedUser { get; set; }
 }
+

@@ -1,0 +1,263 @@
+﻿<!doctype html>
+<html lang="tr" style="margin:0;padding:0;word-break:break-word">
+<head>
+    <meta charset="utf-8">
+    <meta name="x-apple-disable-message-reformatting">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Mukellef.io — Yeni Mesaj</title>
+    <style>
+        @media (prefers-color-scheme: dark) {
+            .bg {
+                background: #0f1115 !important;
+            }
+
+            .card {
+                background: #161a22 !important;
+                border-color: #2a3140 !important;
+            }
+
+            .text {
+                color: #eef2ff !important;
+            }
+
+            .muted {
+                color: #9aa3b2 !important;
+            }
+
+            .btn {
+                background: #3b82f6 !important;
+                color: #fff !important;
+            }
+
+            .link {
+                color: #93c5fd !important;
+            }
+
+            .divider {
+                border-color: #2a3140 !important;
+            }
+
+            a {
+                color: #93c5fd !important;
+            }
+        }
+
+        @media screen and (max-width:600px) {
+            .container {
+                width: 100% !important;
+                padding: 0 16px !important;
+            }
+
+            .logo img {
+                max-width: 140px !important;
+                height: auto !important;
+            }
+
+            .btn {
+                display: block !important;
+                width: 100% !important;
+                text-align: center !important;
+            }
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f4f6fb;
+            font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        }
+
+        .container {
+            width: 600px;
+            max-width: 600px;
+            background: #ffffff;
+            border: 1px solid #e6e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .logo {
+            padding: 20px 24px;
+            background: #0ea5e9;
+        }
+
+        .content {
+            padding: 24px;
+            color: #0f172a;
+        }
+
+        .card {
+            background: #f8fafc;
+            border: 1px solid #e6e8f0;
+            border-radius: 10px;
+        }
+
+        .muted {
+            color: #64748b;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .text {
+            color: #0f172a;
+            font-size: 14px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #0ea5e9;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 12px 18px;
+            border-radius: 8px;
+        }
+
+        .divider {
+            border-top: 1px solid #e6e8f0;
+            margin: 14px 0;
+        }
+
+        .preheader {
+            display: none;
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            color: transparent;
+        }
+    </style>
+</head>
+<body class="bg" style="margin:0;padding:0;background:#f4f6fb;">
+    <!-- Preview text (e-posta istemcileri için) -->
+    <div class="preheader">
+        (#{{TicketId}}) numaralı tikcet için yeni bir mesaj eklendi — hızlıca göz atın.
+    </div>
+
+    <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+            <td align="center" style="padding:24px;">
+                <table role="presentation" class="container" cellpadding="0" cellspacing="0" width="600">
+                    <tr>
+                        <td class="logo" style="background:#0ea5e9;">
+                            <table width="100%">
+                                <tr>
+                                    <td align="left">
+                                        <img src="https://via.placeholder.com/160x36?text=Mukellef.io" alt="Mukellef.io" width="160" height="36" style="display:block;border:0;outline:none;text-decoration:none">
+                                    </td>
+                                    <td align="right" style="font:600 14px system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#e0f2fe;">
+                                        Yeni Mesaj Bildirimi
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="content">
+                            <div style="font:700 20px system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#0f172a;margin-bottom:8px;">
+                                Ticketinize yeni bir mesaj eklendi — #{{TicketId}}
+                            </div>
+
+                            <div class="text" style="margin-bottom:14px;">
+                                Merhaba {{CustomerName}},<br>
+                                Destek bildiriminize yeni bir cevap gönderildi. Aşağıda kısa bir önizleme görebilirsiniz.
+                            </div>
+
+                            <!-- Özet kartı -->
+                            <table width="100%" class="card" cellpadding="0" cellspacing="0" style="border-radius:10px;">
+                                <tr>
+                                    <td style="padding:16px 24px;">
+                                        <table width="100%" style="border-collapse:collapse;">
+                                            <tr>
+                                                <td class="muted" style="font:600 12px;color:#64748b;">Ticket ID</td>
+                                                <td class="text" style="font:500 14px;color:#0f172a;">#{{TicketId}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="muted" style="font:600 12px;color:#64748b;">Gönderen</td>
+                                                <td class="text" style="font:500 14px;color:#0f172a;">{{CustomerName}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="muted" style="font:600 12px;color:#64748b;">Kategori</td>
+                                                <td class="text" style="font:500 14px;color:#0f172a;">{{Category}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="muted" style="font:600 12px;color:#64748b;">Öncelik</td>
+                                                <td class="text" style="font:500 14px;color:#0f172a;">{{Priority}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="muted" style="font:600 12px;color:#64748b;">Durum</td>
+                                                <td class="text" style="font:500 14px;color:#0f172a;">{{Status}}</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="muted" style="font:600 12px;color:#64748b;">Oluşturma</td>
+                                                <td class="text" style="font:500 14px;color:#0f172a;">{{CreatedAt}}</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:16px;">
+                                        <table width="100%">
+                                            <tr>
+                                                <td class="muted" style="font-weight:600;">TICKET</td>
+                                                <td class="muted" style="font-weight:600;">GÜNCELLENME</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="text" style="font-weight:500;padding-top:6px;">#{{TicketId}}</td>
+                                                <td class="text" style="font-weight:500;padding-top:6px;">{{CreatedAt}}</td>
+                                            </tr>
+                                        </table>
+
+                                        <div class="divider" style="border-top:1px solid #e6e8f0;margin:14px 0;"></div>
+
+                                        <div class="muted" style="font-weight:600;font-size:12px;margin-bottom:6px;">MESAJ (ÖNİZLEME)</div>
+                                        <div class="text" style="font-size:14px;white-space:pre-wrap;max-height:160px;overflow:auto;padding-right:6px;">
+                                            {{Message}}
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- CTA -->
+                            <div style="padding-top:18px;text-align:center;">
+                                <a class="btn" href="{{TicketUrl}}" aria-label="Tıkla, ticketi görüntüle">Mesajı Görüntüle ve Cevapla</a>
+                            </div>
+
+                            <div style="margin-top:18px;color:#334155;font-size:14px;">
+                                İpucu: Cevabınızın ticket'e eklenmesini istiyorsanız bu e-postaya cevap yazmak yeterlidir — biz otomatik olarak ekleriz. (Evet, biraz sihir var; ama çoğunlukla kod.) 😉
+                            </div>
+
+                            <div style="margin-top:16px;color:#64748b;font-size:12px;">
+                                Bu e-posta, <strong>Mukellef.io</strong> tarafından otomatik gönderilmiştir. Yanıtlarınız destek talebinize eklenir.
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="padding:16px 24px;background:#f1f5f9;border-top:1px solid #e6e8f0;">
+                            <table width="100%">
+                                <tr>
+                                    <td class="muted" style="font-size:12px;color:#64748b;">
+                                        © {{year}} Mukellef.io • Tüm hakları saklıdır.<br>
+                                        Destek: <a class="link" href="mailto:support@mukellef.io" style="color:#0ea5e9;text-decoration:none;">support@mukellef.io</a> •
+                                        <a class="link" href="{{TicketUrl}}" style="color:#0ea5e9;text-decoration:none;">Talep Merkezi</a>
+                                    </td>
+                                    <!--<td align="right" class="muted" style="font-size:12px;color:#64748b;">
+                                        <a class="link" href="{{PreferencesUrl}}" style="color:#0ea5e9;text-decoration:none;">Bildirim tercihleri</a>
+                                    </td>-->
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                </table>
+
+                <div class="muted" style="font-size:11px;color:#94a3b8;margin-top:12px;">
+                    Buton çalışmıyorsa bu bağlantıyı tarayıcınıza yapıştırın: {{TicketUrl}}
+                </div>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>

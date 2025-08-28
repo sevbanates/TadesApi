@@ -14,6 +14,6 @@ namespace TadesApi.BusinessService.TicketServices.Interfaces
 
         ActionResponse<bool> ChangeStatus(long ticketId, TicketStatus status);
         ActionResponse<TicketDto> GetTicket(long ticketId, Guid guidId);
-        PagedAndSortedResponse<TicketDto> GetTickets(PagedAndSortedSearchInput input);
+        PagedAndSortedResponse<TicketDto> GetTickets(TicketSearchInput input);
     }
 }

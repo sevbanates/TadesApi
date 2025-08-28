@@ -16,5 +16,7 @@ namespace TadesApi.BusinessService.CommonServices.interfaces
         //void CalculateDelaerOrder();
         void SendAccounterRequestMail<T>(T entity, string subject, string messageText, string toEmail, string toName, string actionUrl, string senderName);
         void SendTicketCreatedMail(CreatedTicketMailModel model);
+        void SendTicketMessageMailToClient(TicketMessageMailModel model);
+        void SendTicketMessageMailToAdmin(TicketMessageMailModel model);
     }
 }

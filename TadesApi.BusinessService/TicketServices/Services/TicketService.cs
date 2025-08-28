@@ -9,6 +9,7 @@ using TadesApi.BusinessService.CommonServices.interfaces;
 using TadesApi.BusinessService.TicketServices.Interfaces;
 using TadesApi.Core;
 using TadesApi.Core.Models;
+using TadesApi.Core.Models.ConstantKeys;
 using TadesApi.Core.Models.Global;
 using TadesApi.Core.Session;
 using TadesApi.CoreHelper;
@@ -16,6 +17,7 @@ using TadesApi.Db;
 using TadesApi.Db.Entities;
 using TadesApi.Db.Infrastructure;
 using TadesApi.Models.CustomModels;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TadesApi.BusinessService.TicketServices.Services
 {
@@ -128,6 +130,33 @@ namespace TadesApi.BusinessService.TicketServices.Services
             // Ticket güncelleme
             var ticket = _entityRepository.GetById(dto.TicketId);
             ticket.UpdatedAt = DateTime.Now;
+           var user = _userRepo.TableNoTracking.FirstOrDefault(x => x.Id == ticket.CreatedBy);
+
+           TicketMessageMailModel model = new TicketMessageMailModel
+            {
+                TicketId = ticket.Id,
+                SenderName = user.FirstName + " " + user.LastName,
+                TicketMessage = dto.Message,
+                TicketUrl = $"http://localhost:4200/tickets/{ticket.Id}/{ticket.GuidId}",
+                CreatedDate = message.CreatedAt,
+                TicketCategory = ticket.Category,
+                TicketPriority = ticket.Priority,
+                TicketStatus = ticket.Status
+           };
+          
+            if (_session.IsAdmin)
+            {
+                model.Recievers.Add(user.Email);
+                _queueService.SendTicketMessageMailToClient(model);
+            }
+            else
+            {
+
+                var adminMails = _userRepo.TableNoTracking.Where(x => x.RoleId == RoleConstant.Admin)
+                    .Select(x => x.Email).ToList();
+                model.Recievers.AddRange(adminMails);
+                _queueService.SendTicketMessageMailToAdmin(model);
+            }
             _entityRepository.Update(ticket);
 
             return new ActionResponse<bool> { IsSuccess = true, Entity = true };
@@ -164,6 +193,14 @@ namespace TadesApi.BusinessService.TicketServices.Services
 
             var user = _userRepo.TableNoTracking.FirstOrDefault(x => x.Id == ticket.CreatedBy);
 
+            //if (ticket.Status == TicketStatus.Open)
+            //{
+            //    if (_session.IsAdmin)
+            //    {
+            //        ticket.Status = TicketStatus.InProgress;
+            //        _entityRepository.Update(ticket);
+            //    }
+            //}
             var mappedEntity = _mapper.Map<TicketDto>(ticket);
             mappedEntity.SenderName = user.FirstName + " " + user.LastName;
             // TicketDto'ya map et (AutoMapper veya manuel)
@@ -172,18 +209,19 @@ namespace TadesApi.BusinessService.TicketServices.Services
         }
 
 
-        public PagedAndSortedResponse<TicketDto> GetTickets(PagedAndSortedSearchInput input)
+        public PagedAndSortedResponse<TicketDto> GetTickets(TicketSearchInput input)
         {
-            IQueryable<Ticket> query;
-            if (_session.IsAdmin)
-            {
-                query = _entityRepository.TableNoTracking.Include(x => x.Messages);
-            }
-            else
-            {
-                query = _entityRepository.TableNoTracking.Include(x => x.Messages)
-                    .Where(x => x.CreatedBy == _session.UserId);
-            }
+            //IQueryable<Ticket> query;
+
+            var query = _entityRepository.TableNoTracking.Include(x => x.Messages)
+                .WhereIf(!_session.IsAdmin, x => x.CreatedBy == _session.UserId)
+                .WhereIf(!string.IsNullOrEmpty(input.Search), x => x.Title.Contains(input.Search))
+                .WhereIf(input.StartDate.HasValue, x => x.CreDate >= input.StartDate)
+                .WhereIf(input.EndDate.HasValue, x => x.CreDate <= input.EndDate)
+                .WhereIf(input.TicketCategory.HasValue && (int)input.TicketCategory.Value != 0, x => x.Category == input.TicketCategory)
+                .WhereIf(input.TicketPriority.HasValue && (int)input.TicketPriority.Value != 0, x => x.Priority == input.TicketPriority)
+                .WhereIf(input.TicketStatus.HasValue && (int)input.TicketStatus.Value != 0, x => x.Status == input.TicketStatus);
+
 
             var totalCount = query.Count();
 

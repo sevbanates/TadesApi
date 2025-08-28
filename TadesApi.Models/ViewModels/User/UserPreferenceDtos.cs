@@ -32,3 +32,4 @@ namespace TadesApi.Models.ViewModels.User
         public long? CurrentSelectedUserId { get; set; }
     }
 }
+

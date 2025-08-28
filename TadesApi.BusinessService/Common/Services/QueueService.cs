@@ -35,6 +35,16 @@ namespace TadesApi.BusinessService.CommonServices.services
             BackgroundJob.Enqueue<IJobService>(x => x.SendTicketCreatedMail(model));
         }
 
+        public void SendTicketMessageMailToAdmin(TicketMessageMailModel model)
+        {
+            BackgroundJob.Enqueue<IJobService>(x => x.SendTicketMessageMailToAdmin(model));
+        }
+
+        public void SendTicketMessageMailToClient(TicketMessageMailModel model)
+        {
+            BackgroundJob.Enqueue<IJobService>(x => x.SendTicketMessageMailToClient(model));
+        }
+
         //public void CheckImzager()
         //{
         //    BackgroundJob.Enqueue<IJobService>(x => x.CheckImzagerApprove());

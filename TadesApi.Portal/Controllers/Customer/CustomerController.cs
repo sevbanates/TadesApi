@@ -69,7 +69,7 @@ namespace TadesApi.Portal.Controllers.Customer
         {
             try
             {
-                var response = _customerService.GetMulti(input);
+                var response = _customerService.GetCustomers(input);
                 response.Token = _appSecurity.Token;
 
                 return response;

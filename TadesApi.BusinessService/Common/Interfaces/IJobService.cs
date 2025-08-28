@@ -12,6 +12,8 @@ namespace TadesApi.BusinessService.CommonServices.interfaces
         void AddLog<T>(T entity, string message, SecurityModel securityModel);
         void SendAccounterRequestMail<T>(T entity, string subject, string messageText, string toEmail, string toName, string actionUrl, string senderName);  
         void SendTicketCreatedMail(CreatedTicketMailModel model);
+        void SendTicketMessageMailToClient(TicketMessageMailModel model);
+        void SendTicketMessageMailToAdmin(TicketMessageMailModel model);
 
         //JobResponse UpdateAllActions();
         //JobResponse CheckPurchaseOrderItemExpire();

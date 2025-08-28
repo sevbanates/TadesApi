@@ -62,6 +62,16 @@ namespace TadesApi.BusinessService.CommonServices.services
             //AddLog(SecurityModel());
         }
 
+        public void SendTicketMessageMailToClient(TicketMessageMailModel model)
+        {
+            _emailHelper.SendTicketMessageMailToClient(model);
+        }
+
+        public void SendTicketMessageMailToAdmin(TicketMessageMailModel model)
+        {
+            _emailHelper.SendTicketMessageMailToAdmin(model);
+        }
+
         //public JobResponse UpdateAllActions()
         //{
         //    return _redisFuncs.AddAllSecurityActions();
