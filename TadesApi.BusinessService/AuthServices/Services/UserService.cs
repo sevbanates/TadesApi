@@ -8,6 +8,7 @@ using TadesApi.BusinessService._base;
 using TadesApi.BusinessService.AppServices;
 using TadesApi.BusinessService.AuthServices.Interfaces;
 using TadesApi.BusinessService.Common.Interfaces;
+using TadesApi.BusinessService.CommonServices.interfaces;
 using TadesApi.Core;
 using TadesApi.Core.Models.ConstantKeys;
 using TadesApi.Core.Models.ViewModels.AuthManagement;
@@ -31,7 +32,7 @@ public class UserService : BaseServiceNg<User, UserBasicDto, CreateUserDto, Upda
         ILocalizationService locManager,
         IMapper mapper,
         IEmailHelper emailHelper,
-        ICurrentUser session, IRepository<UserRequest> userRequestRepo, IRepository<AccounterUsers> accUsersRepository) : base(entityRepository, locManager, mapper, session)
+        ICurrentUser session, IRepository<UserRequest> userRequestRepo, IRepository<AccounterUsers> accUsersRepository, IQueueService queueService) : base(entityRepository, locManager, mapper, session, queueService)
     {
         _emailHelper = emailHelper;
         _userRequestRepo = userRequestRepo;

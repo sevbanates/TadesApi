@@ -36,7 +36,7 @@ namespace TadesApi.BusinessService.InvoiceServices.Services
             IRepository<Invoice> entityRepository,
             ILocalizationService locManager,
             IMapper mapper,
-            ICurrentUser session, IQueueService queueService, IRepository<Customer> customeRepository) : base(entityRepository, locManager, mapper, session)
+            ICurrentUser session, IQueueService queueService, IRepository<Customer> customeRepository) : base(entityRepository, locManager, mapper, session, queueService)
         {
             _queueService = queueService;
             _customeRepository = customeRepository;

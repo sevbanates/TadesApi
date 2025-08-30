@@ -12,6 +12,9 @@ namespace TadesApi.Models.ViewModels.Settings.Accounter
         public long Id { get; set; }
         public Guid GuidId { get; set; }
         public string TargetFullName { get; set; }
+        public string? SenderFullName { get; set; }
+        public string? TargetEmail { get; set; }
+        public string? SenderEmail { get; set; }
         public AccounterRequestStatus Status { get; set; }
         public DateTime CreDate { get; set; }
         public DateTime ModDate { get; set; }

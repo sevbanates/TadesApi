@@ -35,9 +35,8 @@ namespace TadesApi.BusinessService.CustomerServices.Services
             ILocalizationService locManager,
             IMapper mapper,
             ICurrentUser session, IQueueService queueService)
-            : base(entityRepository, locManager, mapper, session)
+            : base(entityRepository, locManager, mapper, session, queueService)
         {
-            _queueService = queueService;
             _validationService = new CustomerValidationService(entityRepository);
         }
 
@@ -64,12 +63,12 @@ namespace TadesApi.BusinessService.CustomerServices.Services
                 CommonFunctions.GetPagedAndSortedData(query, input.Limit, input.Page, input.SortDirection,
                     input.SortBy);
 
-            var mappeDtos = _mapper.Map<List<CustomerDto>>(toReturn);
+            var mappedDtos = _mapper.Map<List<CustomerDto>>(toReturn);
            
-
+            LogAction(mappedDtos, "Customer Listesi Çekildi");
             return new PagedAndSortedResponse<CustomerDto>
             {
-                EntityList = mappeDtos,
+                EntityList = mappedDtos,
                 TotalCount = totalCount
             };
         }
@@ -80,9 +79,12 @@ namespace TadesApi.BusinessService.CustomerServices.Services
             if (!validation.IsSuccess)
                 return validation;
 
-            var entity = _mapper.Map<Customer>(model);
-            _entityRepository.Insert(entity);
-            _queueService.AddLog<Customer>(entity, "Müşteri oluşturuldu.", _session.SecurityModel);
+            //var entity = _mapper.Map<Customer>(model);
+            model.UserId = _session.UserId;
+            Create(model);
+            //_entityRepository.Insert(entity);
+            //_queueService.AddLog<Customer>(entity, "Müşteri oluşturuldu.", _session.SecurityModel);
+            //LogAction(entity, "Customer Oluşturuldu");
             return new ActionResponse<bool>
             {
                 IsSuccess = true,
@@ -98,8 +100,9 @@ namespace TadesApi.BusinessService.CustomerServices.Services
 
             var entity = _entityRepository.TableNoTracking.FirstOrDefault(x => x.Id == id);
             _mapper.Map(model, entity);
-            _entityRepository.Update(entity);
-            _queueService.AddLog<Customer>(entity, "Müşteri güncellendi.", _session.SecurityModel);
+            //_entityRepository.Update(entity);
+            Update(id, model);
+            //_queueService.AddLog<Customer>(entity, "Müşteri güncellendi.", _session.SecurityModel);
             return new ActionResponse<bool>
             {
                 IsSuccess = true,

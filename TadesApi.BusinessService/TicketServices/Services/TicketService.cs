@@ -30,7 +30,7 @@ namespace TadesApi.BusinessService.TicketServices.Services
 
         public TicketService(IRepository<Ticket> entityRepository, ILocalizationService locManager, IMapper mapper,
             ICurrentUser session, IRepository<TicketMessage> messageRepo, IRepository<User> userRepo,
-            BtcDbContext dbContext, IQueueService queueService) : base(entityRepository, locManager, mapper, session)
+            BtcDbContext dbContext, IQueueService queueService) : base(entityRepository, locManager, mapper, session, queueService)
         {
             _messageRepo = messageRepo;
             _userRepo = userRepo;
@@ -230,16 +230,16 @@ namespace TadesApi.BusinessService.TicketServices.Services
                 CommonFunctions.GetPagedAndSortedData(query, input.Limit, input.Page, input.SortDirection,
                     input.SortBy);
 
-            var mappeDtos = _mapper.Map<List<TicketDto>>(toReturn);
-            foreach (var item in mappeDtos)
+            var mappedDtos = _mapper.Map<List<TicketDto>>(toReturn);
+            foreach (var item in mappedDtos)
             {
                 var user = _userRepo.TableNoTracking.FirstOrDefault(x => x.Id == item.CreatedBy);
                 item.SenderName = user.FirstName + " " + user.LastName;
             }
-
+            LogAction(mappedDtos, "GetMulti Ýþlemi");
             return new PagedAndSortedResponse<TicketDto>
             {
-                EntityList = mappeDtos,
+                EntityList = mappedDtos,
                 TotalCount = totalCount
             };
         }

@@ -16,6 +16,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using TadesApi.Db.Entities;
 using TadesApi.BusinessService._base;
+using TadesApi.BusinessService.CommonServices.interfaces;
 using TadesApi.Core.Helper;
 using TadesApi.Core.Models.Global;
 
@@ -29,7 +30,8 @@ namespace TadesApi.BusinessService.LibraryServices.Services
             IRepository<Library> entityRepository,
             ILocalizationService locManager,
             IMapper mapper,
-            ICurrentUser session) : base(entityRepository, locManager, mapper, session)
+            ICurrentUser session,
+            IQueueService queueService) : base(entityRepository, locManager, mapper, session, queueService)
         {
         }
 

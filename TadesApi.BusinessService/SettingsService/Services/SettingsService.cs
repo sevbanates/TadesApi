@@ -101,6 +101,7 @@ namespace TadesApi.BusinessService.SettingsService.Services
                 var approveLink = $"{_fileSetting.Value.BaseUrl ?? "http://localhost:44559"}/api/settings/accounter-request/approve?id={accounterRequest.Id}&guid={accounterRequest.GuidId}";
                 var messageText = "Muhasebeci daveti aldınız. Onaylamak için butona tıklayın.";
                 _queueService.SendAccounterRequestMail(accounterRequest, subject, messageText, targetUser.Email, targetUser.FirstName + " " + targetUser.LastName, approveLink, senderFullName);
+                
                 return response;
             }
             catch (Exception ex)
@@ -134,11 +135,49 @@ namespace TadesApi.BusinessService.SettingsService.Services
 
                 return response;
             }
+            else if (_session.User)
+            {
+                var requests = _entityRepository.TableNoTracking.Where(x => x.SenderId == _session.UserId).ToList();
+                foreach (var item in requests)
+                {
+                    var user = _userRepo.TableNoTracking.FirstOrDefault(x => x.Id == item.TargetId);
+                    var entity = new AccounterRequestDto
+                    {
+                        CreDate = item.CreDate,
+                        GuidId = item.GuidId,
+                        Id = item.Id,
+                        Status = item.Status,
+                        TargetFullName = user.FirstName + " " + user.LastName,
+                        TargetEmail = user.Email
+                    };
+                    response.EntityList.Add(entity);
+                }
+            }
             else
             {
-                return response.ReturnResponseError("Hatalı Erişim.");
+                var requests = _entityRepository.TableNoTracking.ToList();
+                foreach (var item in requests)
+                {
+                    var targetUser = _userRepo.TableNoTracking.FirstOrDefault(x => x.Id == item.TargetId);
+                    var senderUser = _userRepo.TableNoTracking.FirstOrDefault(x => x.Id == item.SenderId);
+                    var entity = new AccounterRequestDto
+                    {
+                        CreDate = item.CreDate,
+                        GuidId = item.GuidId,
+                        Id = item.Id,
+                        Status = item.Status,
+                        TargetFullName = targetUser.FirstName + " " + targetUser.LastName,
+                        TargetEmail = targetUser.Email,
+                        SenderFullName = senderUser.FirstName + " " + senderUser.LastName,
+                        SenderEmail = senderUser.Email
+
+                    };
+                    response.EntityList.Add(entity);
+                }
             }
-          
+
+            return response;
+
         }
 
         public ActionResponse<AccounterRequestDto> ChangeStatus(AccounterRequestDto dto)

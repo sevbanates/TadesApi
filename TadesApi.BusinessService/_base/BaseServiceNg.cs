@@ -4,6 +4,7 @@ using System.Linq;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using TadesApi.BusinessService.AppServices;
+using TadesApi.BusinessService.CommonServices.interfaces;
 using TadesApi.Core;
 using TadesApi.Core.Models.Global;
 using TadesApi.Core.Session;
@@ -22,14 +23,20 @@ namespace TadesApi.BusinessService._base
         private readonly ILocalizationService _locManager;
         protected readonly IMapper _mapper;
         protected readonly ICurrentUser _session;
+        protected readonly IQueueService _queueService;
 
-        protected BaseServiceNg(IRepository<TEntity> entityRepository, ILocalizationService locManager,
-            IMapper mapper, ICurrentUser session)
+        protected BaseServiceNg(
+            IRepository<TEntity> entityRepository,
+            ILocalizationService locManager,
+            IMapper mapper,
+            ICurrentUser session,
+            IQueueService queueService)
         {
             _entityRepository = entityRepository;
             _locManager = locManager;
             _mapper = mapper;
             _session = session;
+            _queueService = queueService;
         }
 
         public ActionResponse<TViewModel> GetSingle(string includes = "")
@@ -49,6 +56,7 @@ namespace TadesApi.BusinessService._base
                 return new ActionResponse<TViewModel>().ReturnResponseError("Entity not found");
 
             var toReturn = _mapper.Map<TViewModel>(entity);
+            LogAction(toReturn, $"GetSingle Ýþlemi");
             return new ActionResponse<TViewModel> { Entity = toReturn };
         }
 
@@ -60,6 +68,8 @@ namespace TadesApi.BusinessService._base
                 .Aggregate(query, (current, toInclude) => current.Include(toInclude));
 
             var toReturn = CommonFunctions.GetPagedAndSortedData(query, input.Limit, input.Page, input.SortDirection, input.SortBy);
+
+            LogAction(toReturn, $"GetMulti Ýþlemi");
             return new PagedAndSortedResponse<TViewModel>
             {
                 EntityList = _mapper.Map<List<TViewModel>>(toReturn),
@@ -75,6 +85,7 @@ namespace TadesApi.BusinessService._base
                 return new ActionResponse<bool>().ReturnResponseError("Entity not found");
 
             _entityRepository.Delete(toDelete);
+            LogAction(toDelete, $"Silme Ýþlemi");
             return new ActionResponse<bool> { Entity = true };
         }
 
@@ -82,6 +93,7 @@ namespace TadesApi.BusinessService._base
         {
             var toCreate = _mapper.Map<TEntity>(input);
             _entityRepository.Insert(toCreate);
+            LogAction(input, $"{typeof(TEntity)} Yeni Kayýt iþlemi");
             return new ActionResponse<TViewModel> { Entity = _mapper.Map<TViewModel>(toCreate) };
         }
 
@@ -93,7 +105,13 @@ namespace TadesApi.BusinessService._base
 
             _mapper.Map(input, toUpdate);
             _entityRepository.Update(toUpdate);
+            LogAction(input, $"{typeof(TViewModel)} Güncelleme iþlemi");
             return new ActionResponse<TViewModel> { Entity = _mapper.Map<TViewModel>(toUpdate) };
+        }
+        
+        protected void LogAction<T>(T entity, string message)
+        {
+            _queueService.AddLog(entity, message, _session.SecurityModel);
         }
     }
 }

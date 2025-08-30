@@ -79,13 +79,13 @@ public class CommonService : ICommonService
         var countries = _countriesRepository.TableNoTracking
             .Select(x => new SelectNumberModel() { Value = x.Id, Text = x.Name })
             .ToList();
-        var cities = _citiesRepository.TableNoTracking
-            .Select(x => new SelectNumberModel { Value = x.Id, Text = x.Name })
-            .ToList();
+        //var cities = _citiesRepository.TableNoTracking
+        //    .Select(x => new SelectNumberModel { Value = x.Id, Text = x.Name })
+        //    .ToList();
         response.Entity = new CountryAndCityModel
         {
             Countries = countries,
-            Cities = cities
+            //Cities = cities
         };
         return response;
     }
