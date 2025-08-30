@@ -88,6 +88,22 @@ namespace TadesApi.Portal.Controllers.Customer
         {
             try
             {
+                // Admin değilse, kullanıcının kendi verisine erişip erişmediğini kontrol et
+                if (_appSecurity.RoleId != 100) // Admin role ID'si 100
+                {
+                    var customer = _customerService.GetSingle(id, guidId);
+                    if (!customer.IsSuccess || customer.Entity == null)
+                    {
+                        return ErrorResponse(new ActionResponse<CustomerDto>(), "Müşteri bulunamadı veya erişim izniniz yok.");
+                    }
+
+                    // Kullanıcının kendi müşterisi mi kontrol et
+                    if (customer.Entity.UserId != _appSecurity.UserId)
+                    {
+                        return ErrorResponse(new ActionResponse<CustomerDto>(), "Bu müşteriye erişim izniniz bulunmamaktadır.");
+                    }
+                }
+
                 var response = _customerService.GetSingle(id, guidId);
                 response.Token = _appSecurity.Token;
                 return response;

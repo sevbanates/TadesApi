@@ -97,6 +97,22 @@ namespace TadesApi.Portal.Controllers.Ticket
         {
             try
             {
+                // Admin değilse, kullanıcının kendi verisine erişip erişmediğini kontrol et
+                if (_appSecurity.RoleId != 100) // Admin role ID'si 100
+                {
+                    var ticket = _ticketService.GetTicket(id, guidId);
+                    if (!ticket.IsSuccess || ticket.Entity == null)
+                    {
+                        return ErrorResponse(new ActionResponse<TicketDto>(), "Ticket bulunamadı veya erişim izniniz yok.");
+                    }
+
+                    // Kullanıcının kendi ticket'ı mı kontrol et
+                    if (ticket.Entity.CreatedBy != _appSecurity.UserId)
+                    {
+                        return ErrorResponse(new ActionResponse<TicketDto>(), "Bu ticket'a erişim izniniz bulunmamaktadır.");
+                    }
+                }
+
                 var response = _ticketService.GetTicket(id, guidId);
                 response.Token = _appSecurity.Token;
                 return response;
