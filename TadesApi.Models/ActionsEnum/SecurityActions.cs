@@ -81,3 +81,16 @@ public enum InquirySecurity
 
     [Display(Name = "Delete")] Delete = 8,
 }
+
+public enum TicketSecurity
+{
+    [Display(Name = "List")] List = 1,
+
+    [Display(Name = "View")] View = 2,
+
+    [Display(Name = "Create")] Create = 4,
+
+    [Display(Name = "Update")] Update = 8,
+
+    [Display(Name = "Delete")] Delete = 16,
+}
