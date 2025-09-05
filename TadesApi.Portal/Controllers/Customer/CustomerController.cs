@@ -46,10 +46,24 @@ namespace TadesApi.Portal.Controllers.Customer
         [HttpPut("update/{id}")]
         public ActionResponse<bool> Update(int id, [FromBody] CustomerUpdateDto model)
         {
-
-
             try
             {
+                // Admin değilse, kullanıcının kendi verisini güncelleyip güncelleyemediğini kontrol et
+                if (_appSecurity.RoleId != 100) // Admin role ID'si 100
+                {
+                    var existingCustomer = _customerService.GetSingle(id, model.GuidId);
+                    if (!existingCustomer.IsSuccess || existingCustomer.Entity == null)
+                    {
+                        return ErrorResponse(new ActionResponse<bool>(), "Müşteri bulunamadı veya erişim izniniz yok.");
+                    }
+
+                    // Kullanıcının kendi müşterisini güncelleyip güncelleyemediğini kontrol et
+                    if (existingCustomer.Entity.UserId != _appSecurity.UserId)
+                    {
+                        return ErrorResponse(new ActionResponse<bool>(), "Bu müşteriyi güncelleme izniniz bulunmamaktadır.");
+                    }
+                }
+
                 var response = _customerService.UpdateCustomer(id, model);
                 response.Token = _appSecurity.Token;
                 return response;
@@ -58,7 +72,6 @@ namespace TadesApi.Portal.Controllers.Customer
             {
                 return ErrorResponse(new ActionResponse<bool>(), "Update :" + ex.Message);
             }
-    
         }
 
 

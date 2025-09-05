@@ -3,6 +3,8 @@ using TadesApi.BusinessService.TicketServices.Interfaces;
 using TadesApi.Core;
 using TadesApi.Core.Models.Global;
 using TadesApi.Core.Session;
+using TadesApi.Models.ActionsEnum;
+using TadesApi.Portal.ActionFilters;
 using TadesApi.Portal.Helpers;
 
 
@@ -21,6 +23,7 @@ namespace TadesApi.Portal.Controllers.Ticket
             _currentUser = currentUser;
         }
 
+        [SecurityState((int)TicketSecurity.Create)]
         [HttpPost("create")]
         public ActionResponse<TicketDto> Create([FromBody] CreateTicketDto dto)
         {
@@ -36,6 +39,7 @@ namespace TadesApi.Portal.Controllers.Ticket
 
         }
 
+        [SecurityState((int)TicketSecurity.Create)]
         [HttpPost("message")]
         public ActionResponse<bool> AddMessage([FromBody] CreateTicketMessageDto dto)
         {
@@ -57,6 +61,7 @@ namespace TadesApi.Portal.Controllers.Ticket
 
         }
 
+        [SecurityState((int)TicketSecurity.Update)]
         [HttpPut("status/{ticketId}")]
         public ActionResponse<bool> ChangeStatus(long ticketId, [FromBody] TicketStatus status)
         {
@@ -74,6 +79,7 @@ namespace TadesApi.Portal.Controllers.Ticket
 
         }
 
+        [SecurityState((int)TicketSecurity.List)]
         [HttpGet]
         public PagedAndSortedResponse<TicketDto> GetMulti([FromQuery] TicketSearchInput input)
         {

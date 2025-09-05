@@ -18,7 +18,10 @@ namespace TadesApi.Models.ActionsEnum
         Ticket = 4,
 
         [Display(Name = "Customer")]
-        Customer = 5,     
+        Customer = 5,    
+        
+        [Display(Name = "AccounterRequest")]
+        AccounterRequest = 7,     
 
 
         //[Display(Name = "ScheduleEvent")]
