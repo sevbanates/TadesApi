@@ -53,8 +53,23 @@ namespace TadesApi.BusinessService.InvoiceServices.Services
 
         public ActionResponse<List<CustomerSelectModel>> GetCustomers()
         {
-            var ss =_customeRepository.TableNoTracking.Select(x => new CustomerSelectModel
-            { Id = x.Id, FullName = x.Name + " " + x.Surname, Name = x.Name, Surname = x.Surname, VknTckn = x.VknTckn, IsCompany = x.IsCompany, Title = x.Title}).ToList();
+            List<CustomerSelectModel> ss;
+            if (_session.IsAccounter)
+            {
+                 ss = _customeRepository.TableNoTracking.Where(x=> x.UserId == _session.SelectedUserId).Select(x => new CustomerSelectModel
+                    { Id = x.Id, FullName = x.Name + " " + x.Surname, Name = x.Name, Surname = x.Surname, VknTckn = x.VknTckn, IsCompany = x.IsCompany, Title = x.Title }).ToList();
+            }
+            else if (_session.IsAdmin)
+            {
+                 ss = _customeRepository.TableNoTracking.Select(x => new CustomerSelectModel
+                    { Id = x.Id, FullName = x.Name + " " + x.Surname, Name = x.Name, Surname = x.Surname, VknTckn = x.VknTckn, IsCompany = x.IsCompany, Title = x.Title }).ToList();
+            }
+            else
+            {
+               ss = _customeRepository.TableNoTracking.Where(x=> x.UserId == _session.UserId).Select(x => new CustomerSelectModel
+                    { Id = x.Id, FullName = x.Name + " " + x.Surname, Name = x.Name, Surname = x.Surname, VknTckn = x.VknTckn, IsCompany = x.IsCompany, Title = x.Title }).ToList();
+            }
+          
 
             _queueService.AddLog<List<CustomerSelectModel>>(ss, "Cari verileri çekildi.", _session.SecurityModel);
 

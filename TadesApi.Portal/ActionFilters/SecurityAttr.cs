@@ -3,16 +3,13 @@
     [AttributeUsage(AttributeTargets.All)]
     public class SecurityStateAttribute : Attribute
     {
-        int actionNo;
+        public int ActionNo { get; }
+        public string Controller { get; }
 
-        public SecurityStateAttribute(int actionNo)
+        public SecurityStateAttribute(int actionNo, string controller = null)
         {
-            this.actionNo = actionNo;
-        }
-
-        public int ActionNo
-        {
-            get { return actionNo; }
+            ActionNo = actionNo;
+            Controller = controller;
         }
     }
 }

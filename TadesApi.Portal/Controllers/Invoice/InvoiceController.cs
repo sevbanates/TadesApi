@@ -43,7 +43,7 @@ namespace TadesApi.Portal.Controllers.Invoice
         }
 
 
-        [SecurityState((int)CustomerSecurity.View)]
+        [SecurityState((int)CustomerSecurity.List, "Customer")]
         [HttpGet]
         [Route("get-customers")]
         public ActionResponse<List<CustomerSelectModel>> GetCustomers()

@@ -149,8 +149,10 @@ namespace TadesApi.Portal.ActionFilters
                 if (attr != null)
                 {
                     int actionNo = (int)attr.ConstructorArguments[0].Value;
-
-                    var controllerName = context.ActionDescriptor.RouteValues["controller"];
+                        
+                    var controllerName = attr.ConstructorArguments[1].Value != null ?
+                        (string)attr.ConstructorArguments[1].Value
+    : context.ActionDescriptor.RouteValues["controller"];
 
                     bool checkAuthorization = _securityService.CheckAuthorization(controllerName, actionNo);
 
