@@ -19,6 +19,7 @@ using TadesApi.CoreHelper;
 using TadesApi.Db.Entities;
 using TadesApi.Db.Entities;
 using TadesApi.Db.Infrastructure;
+using TadesApi.Models.ActionsEnum;
 using TadesApi.Models.AppMessages;
 using TadesApi.Models.CustomModels;
 using TadesApi.Models.ViewModels.Invoice;
@@ -79,6 +80,148 @@ namespace TadesApi.BusinessService.InvoiceServices.Services
                 IsSuccess = true,
                 //Message = "Müşteriler başarıyla alındı."
             };
+        }
+
+        public ActionResponse<List<InvoiceDto>> GetInvoices()
+        {
+            var response = new ActionResponse<List<InvoiceDto>>();
+            try
+            {
+                var invoices = _entityRepository.TableNoTracking
+                    .Include(x => x.Items)
+                    .OrderByDescending(x => x.CreDate)
+                    .ToList();
+
+                response.Entity = _mapper.Map<List<InvoiceDto>>(invoices);
+                response.IsSuccess = true;
+                _queueService.AddLog(invoices, "Faturalar listelendi.", _session.SecurityModel);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ReturnMessage = new List<string> { ex.Message };
+            }
+            return response;
+        }
+
+        public ActionResponse<InvoiceDto> GetInvoiceById(long id)
+        {
+            var response = new ActionResponse<InvoiceDto>();
+            try
+            {
+                var invoice = _entityRepository.TableNoTracking
+                    .Include(x => x.Items)
+                    .FirstOrDefault(x => x.Id == id);
+
+                if (invoice == null)
+                {
+                    response.IsSuccess = false;
+                    response.ReturnMessage = new List<string> { "Fatura bulunamadı." };
+                    return response;
+                }
+
+                response.Entity = _mapper.Map<InvoiceDto>(invoice);
+                response.IsSuccess = true;
+                _queueService.AddLog(invoice, "Fatura detayı görüntülendi.", _session.SecurityModel);
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ReturnMessage = new List<string> { ex.Message };
+            }
+            return response;
+        }
+
+        public ActionResponse<bool> UpdateInvoice(long id, InvoiceUpdateDto model)
+        {
+            var response = new ActionResponse<bool>();
+            try
+            {
+                var invoice = _entityRepository.Table.FirstOrDefault(x => x.Id == id);
+                if (invoice == null)
+                {
+                    response.IsSuccess = false;
+                    response.ReturnMessage = new List<string> { "Fatura bulunamadı." };
+                    return response;
+                }
+
+                _mapper.Map(model, invoice);
+                _entityRepository.Update(invoice);
+                _queueService.AddLog(invoice, "Fatura güncellendi.", _session.SecurityModel);
+
+                response.Entity = true;
+                response.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ReturnMessage = new List<string> { ex.Message };
+            }
+            return response;
+        }
+
+        public ActionResponse<bool> DeleteInvoice(long id)
+        {
+            var response = new ActionResponse<bool>();
+            try
+            {
+                var invoice = _entityRepository.Table.FirstOrDefault(x => x.Id == id);
+                if (invoice == null)
+                {
+                    response.IsSuccess = false;
+                    response.ReturnMessage = new List<string> { "Fatura bulunamadı." };
+                    return response;
+                }
+
+                _entityRepository.Delete(invoice);
+                _queueService.AddLog(invoice, "Fatura silindi.", _session.SecurityModel);
+
+                response.Entity = true;
+                response.IsSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ReturnMessage = new List<string> { ex.Message };
+            }
+            return response;
+        }
+
+        public ActionResponse<bool> SendToGib(long id)
+        {
+            var response = new ActionResponse<bool>();
+            try
+            {
+                var invoice = _entityRepository.Table
+                    .Include(x => x.Items)
+                    .FirstOrDefault(x => x.Id == id);
+
+                if (invoice == null)
+                {
+                    response.IsSuccess = false;
+                    response.ReturnMessage = new List<string> { "Fatura bulunamadı." };
+                    return response;
+                }
+
+                // TODO: GIB Entegratör API'sine gönderim yapılacak
+                // Şimdilik sadece status güncelliyoruz
+                invoice.Status = InvoiceStatus.Sent;
+                invoice.GibStatus = "PENDING";
+                invoice.GibMessage = "Fatura GIB'e gönderildi, onay bekleniyor.";
+                
+                _entityRepository.Update(invoice);
+                _queueService.AddLog(invoice, "Fatura GIB'e gönderildi.", _session.SecurityModel);
+
+                response.Entity = true;
+                response.IsSuccess = true;
+                response.ReturnMessage = new List<string> { "Fatura GIB'e gönderildi. (Entegratör bağlantısı henüz yapılmadı)" };
+            }
+            catch (Exception ex)
+            {
+                response.IsSuccess = false;
+                response.ReturnMessage = new List<string> { ex.Message };
+            }
+            return response;
         }
     }
 }

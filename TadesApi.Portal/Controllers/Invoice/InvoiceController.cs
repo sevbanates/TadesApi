@@ -60,6 +60,86 @@ namespace TadesApi.Portal.Controllers.Invoice
             }
         }
 
+        [HttpGet]
+        [Route("list")]
+        public ActionResponse<List<InvoiceDto>> GetInvoices()
+        {
+            try
+            {
+                var response = _invoiceService.GetInvoices();
+                response.Token = _appSecurity.Token;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new ActionResponse<List<InvoiceDto>>(), "GetInvoices :" + ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [Route("{id}")]
+        public ActionResponse<InvoiceDto> GetInvoiceById(long id)
+        {
+            try
+            {
+                var response = _invoiceService.GetInvoiceById(id);
+                response.Token = _appSecurity.Token;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new ActionResponse<InvoiceDto>(), "GetInvoiceById :" + ex.Message);
+            }
+        }
+
+        [HttpPut]
+        [Route("{id}")]
+        public ActionResponse<bool> UpdateInvoice(long id, [FromBody] InvoiceUpdateDto input)
+        {
+            try
+            {
+                var response = _invoiceService.UpdateInvoice(id, input);
+                response.Token = _appSecurity.Token;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new ActionResponse<bool>(), "UpdateInvoice :" + ex.Message);
+            }
+        }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public ActionResponse<bool> DeleteInvoice(long id)
+        {
+            try
+            {
+                var response = _invoiceService.DeleteInvoice(id);
+                response.Token = _appSecurity.Token;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new ActionResponse<bool>(), "DeleteInvoice :" + ex.Message);
+            }
+        }
+
+        [HttpPost]
+        [Route("{id}/send-to-gib")]
+        public ActionResponse<bool> SendToGib(long id)
+        {
+            try
+            {
+                var response = _invoiceService.SendToGib(id);
+                response.Token = _appSecurity.Token;
+                return response;
+            }
+            catch (Exception ex)
+            {
+                return ErrorResponse(new ActionResponse<bool>(), "SendToGib :" + ex.Message);
+            }
+        }
+
         //[SecurityState((int)LibrarySecurity.View)]
         //[HttpGet]
         //[Route("{id}/{guidId}")]

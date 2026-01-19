@@ -1,17 +1,22 @@
 ﻿using AutoMapper;
 using Hangfire;
+using Hangfire.SqlServer;
 using Microsoft.EntityFrameworkCore;
 using TadesApi.Db.Entities.AppDbContext;
 using TadesApi.BusinessService.AppServices;
 using TadesApi.BusinessService.AppServices.Interfaces;
+using TadesApi.BusinessService.Common.Interfaces;
+using TadesApi.BusinessService.Common.Services;
 using TadesApi.BusinessService.CommonServices.interfaces;
 using TadesApi.BusinessService.CommonServices.services;
 using TadesApi.Core;
 using TadesApi.Core.Caching;
 using TadesApi.Core.Models.Global;
+using TadesApi.Core.Security;
 using TadesApi.Core.Session;
 using TadesApi.Db;
 using TadesApi.Db.Infrastructure;
+using TadesApi.Db.PartialEntites;
 using TadesApi.Portal.ActionFilters;
 using TadesApi.Portal.Helpers.Map;
 
@@ -69,7 +74,25 @@ public static class WebApplicationBuilderExtension
                 .EnableSensitiveDataLogging()
         );
         applicationBuilder.Services.AddHangfire(x =>
-            x.UseSqlServerStorage(applicationBuilder.Configuration.GetConnectionString("HangFireeConnectionString")));
+            x.UseSqlServerStorage(
+                applicationBuilder.Configuration.GetConnectionString("HangFireeConnectionString"),
+                new SqlServerStorageOptions
+                {
+                    // Veritabanını yormamak için sorgu aralığını 15 saniyeye çıkarıyoruz
+                    QueuePollInterval = TimeSpan.FromSeconds(15),
+                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                    SlidingInvisibilityTimeout = TimeSpan.FromMinutes(5),
+                    UseRecommendedIsolationLevel = true,
+                    DisableGlobalLocks = true
+                }
+            ));
+
+        // 2. ADIM: Worker Sayısı (Bunu hemen altına YENİ olarak ekliyorsun)
+        applicationBuilder.Services.AddHangfireServer(options =>
+        {
+            // Havuzu tüketmemek için aynı anda çalışan işçi sayısını 5 ile sınırla
+            options.WorkerCount = 5;
+        });
         applicationBuilder.Services.AddDbContext<BtcDbContext>();
         applicationBuilder.Services.AddScoped<IBetechContextProvider, BetechContextProvider>();
         applicationBuilder.Services.AddScoped(typeof(IRepository<>), typeof(GeneralRepository<>));

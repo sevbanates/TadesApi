@@ -117,17 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="candyslide" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\candyslide.pdf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Growth_Mindset_1_of_5_Social_Emotional_Learning_for_kids" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Growth Mindset 1 of 5 Social Emotional Learning for kids._jpg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="Riley_on_LEGO_Superheroes" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Riley on LEGO Superheroes._jpg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="wh_question_" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\wh-question-.pdf;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
 </root>

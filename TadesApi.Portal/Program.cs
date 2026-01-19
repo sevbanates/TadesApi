@@ -54,16 +54,17 @@ builder.Services.AddCors(options =>
             "http://localhost:4200" => true,
             "https://portal.globalpsychsolutions.com" => true,
             "https://meet.globalpsychsolutions.com" => true,
-            _ => false
+            _ => origin.StartsWith("http://localhost:") || 
+                 origin.StartsWith("https://localhost:") ||
+                 origin.StartsWith("http://10.0.2.2:") ||
+                 origin.StartsWith("https://10.0.2.2:")
         };
 
         corsBuilder
-            .WithOrigins(
-                "https://localhost:4200, http://localhost:4200, https://portal.globalpsychsolutions.com, https://meet.globalpsychsolutions.com")
+            .SetIsOriginAllowed(IsOriginAllowed)
             .AllowAnyMethod()
-            .AllowAnyHeader();
-        corsBuilder
-            .SetIsOriginAllowed(IsOriginAllowed);
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
     
     options.AddPolicy("AllowAll", corsBuilder =>
@@ -185,6 +186,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+// Android emulator için Host header kontrolünü devre dışı bırak
+app.Use(async (context, next) =>
+{
+    var host = context.Request.Host.Host;
+    // 10.0.2.2 veya 10.0.2.15 gibi Android emulator IP'lerini kabul et
+    if (host == "10.0.2.2" || host == "10.0.2.15")
+    {
+        context.Request.Host = new HostString("localhost", context.Request.Host.Port ?? 44559);
+    }
+    await next();
+});
+
 app.UseExceptionMiddleware();
 app.UseDefaultFiles();
 //app.UseHttpsRedirection();
@@ -195,5 +208,4 @@ app.UseCors("DefaultPolicy");
 app.UseAuthorization();
 app.MapControllers();
 app.UseHangfireDashboard();
-app.UseHangfireServer();
 app.Run();

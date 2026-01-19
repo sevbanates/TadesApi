@@ -15,5 +15,10 @@ namespace TadesApi.BusinessService.InvoiceServices.Interfaces
     {
         ActionResponse<bool> CreateInvoice(InvoiceCreateDto model);
         ActionResponse<List<CustomerSelectModel>> GetCustomers();
+        ActionResponse<List<InvoiceDto>> GetInvoices();
+        ActionResponse<InvoiceDto> GetInvoiceById(long id);
+        ActionResponse<bool> UpdateInvoice(long id, InvoiceUpdateDto model);
+        ActionResponse<bool> DeleteInvoice(long id);
+        ActionResponse<bool> SendToGib(long id);
     }
 }
