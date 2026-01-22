@@ -39,10 +39,13 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<AccounterRequest> AccounterRequests { get; set; }
     public virtual DbSet<AccounterUsers> AccounterUsers { get; set; }
     public virtual DbSet<UserPreferences> UserPreferences { get; set; }
+    public virtual DbSet<UserQuota> UserQuotas { get; set; }
+    public virtual DbSet<Order> Orders { get; set; }
+    public virtual DbSet<QuotaPackage> QuotaPackages { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=.;Initial Catalog=TadesDb;Persist Security Info=True;User ID=sa;Password=Kinney149;TrustServerCertificate=True;pooling=True;min pool size=0;max pool size=100;MultipleActiveResultSets=True;");
+        => optionsBuilder.UseSqlServer("Data Source = 45.43.154.61,1433; Initial Catalog = SoftinvoDb; Persist Security Info = True; User ID = sa; Password =Kinney149; pooling = True; min pool size = 0; max pool size = 500; MultipleActiveResultSets = True;TrustServerCertificate = Yes ;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
